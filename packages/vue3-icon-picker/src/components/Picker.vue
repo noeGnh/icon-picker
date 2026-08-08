@@ -203,6 +203,7 @@
           <RecycleScroller
             ref="scroller"
             class="v3ip__items"
+            key-field="name"
             :items="filteredIcons"
             :item-size="40"
             :grid-items="4"

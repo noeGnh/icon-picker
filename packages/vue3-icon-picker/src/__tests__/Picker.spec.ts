@@ -4,14 +4,24 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 // vue-virtual-scroller measures real DOM layout to decide how many rows to
 // render, which jsdom always reports as zero. Since the virtualization
 // itself isn't what we're testing here, stub it with a component that just
-// renders every item through the default slot.
+// renders every item through the default slot - but still replicate the
+// real library's keyField validation (it throws if an item is missing the
+// configured key field), since that's exactly the kind of thing a too-loose
+// stub would otherwise hide.
 vi.mock('vue-virtual-scroller', () => ({
   RecycleScroller: {
     name: 'RecycleScroller',
-    props: ['items'],
+    props: { items: { type: Array, default: () => [] }, keyField: { type: String, default: 'id' } },
+    setup(props: { items: Record<string, unknown>[]; keyField: string }) {
+      for (const item of props.items) {
+        if (item[props.keyField] === undefined) {
+          throw new Error(`Key is undefined on item (keyField is '${props.keyField}')`)
+        }
+      }
+    },
     template: `
       <div>
-        <template v-for="item in items" :key="item.name">
+        <template v-for="item in items" :key="item[keyField]">
           <slot :item="item" />
         </template>
       </div>
