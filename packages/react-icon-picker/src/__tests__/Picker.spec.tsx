@@ -175,6 +175,87 @@ describe('Picker search + selection', () => {
     await waitFor(() => expect(getByText('No icons')).toBeTruthy())
   })
 
+  it('shows a clear button once there is a query, which clears it and reloads the default set', async () => {
+    const { container } = render(<Picker value={null} onChange={vi.fn()} iconLibrary="carbon" />)
+    await findGridCell(container)
+
+    expect(container.querySelector('button[title="Clear search"]')).toBeNull()
+
+    const input = container.querySelector('input[name="search"]') as HTMLInputElement
+    fireEvent.change(input, { target: { value: 'home' } })
+    await waitForIcon(container, 'tabler:home')
+
+    const clearButton = container.querySelector('button[title="Clear search"]') as HTMLButtonElement
+    expect(clearButton).not.toBeNull()
+
+    browseCollectionMock.mockClear()
+    fireEvent.click(clearButton)
+    await waitForIcon(container, 'tabler:activity')
+
+    expect(input.value).toBe('')
+    expect(browseCollectionMock).toHaveBeenCalledWith('carbon')
+  })
+
+  it('shows a status text with the result/icon count', async () => {
+    // Scoped to this render's own container rather than getByText: the test
+    // file doesn't clean up the DOM between tests (afterEach isn't global
+    // here), so other pickers' leftover "1 icon" text would make a
+    // document-wide query ambiguous.
+    const meta = (container: HTMLElement) => container.querySelector('[class*="r3ipMeta"]')?.textContent
+
+    const { container } = render(<Picker value={null} onChange={vi.fn()} />)
+    await findGridCell(container)
+    await waitFor(() => expect(meta(container)).toBe('1 icon'))
+
+    await search(container, 'home')
+    await waitFor(() => expect(meta(container)).toBe('1 result'))
+  })
+
+  it('shows a loading status text while a search is in flight', async () => {
+    let resolveSearch!: (value: unknown) => void
+    searchIconsMock.mockReturnValue(new Promise((resolve) => (resolveSearch = resolve)))
+
+    const { container } = render(<Picker value={null} onChange={vi.fn()} />)
+    await findGridCell(container)
+
+    const input = container.querySelector('input[name="search"]') as HTMLInputElement
+    fireEvent.change(input, { target: { value: 'home' } })
+
+    await waitFor(() =>
+      expect(container.querySelector('[class*="r3ipMeta"]')?.textContent).toBe('Loading…')
+    )
+
+    resolveSearch(SEARCH_RESULTS)
+    await waitForIcon(container, 'tabler:home')
+  })
+
+  it('closes the dropdown when Escape is pressed while open', async () => {
+    const { container } = render(<Picker value={null} onChange={vi.fn()} />)
+    const trigger = container.querySelector('[class*="r3ipSelected"]') as HTMLElement
+
+    fireEvent.click(trigger)
+    expect(trigger.className).toMatch(/open/)
+
+    fireEvent.keyDown(container.querySelector('[class*="r3ipCustomSelect"]') as HTMLElement, {
+      key: 'Escape',
+    })
+    expect(trigger.className).not.toMatch(/open/)
+  })
+
+  it('multi-select: shows a clear-all button that clears every selected value at once', async () => {
+    const onChange = vi.fn()
+    const { container } = render(
+      <Picker value={['tabler:home', 'tabler:search']} onChange={onChange} multiple />
+    )
+
+    const clearAllButton = container.querySelector('button[title="Clear all"]') as HTMLButtonElement
+    expect(clearAllButton).not.toBeNull()
+
+    fireEvent.click(clearAllButton)
+
+    expect(onChange).toHaveBeenCalledWith([])
+  })
+
   describe('default icons (before typing anything)', () => {
     it('browses a random prefix when no iconLibrary is set', async () => {
       const { container } = render(<Picker value={null} onChange={vi.fn()} />)

@@ -1,45 +1,42 @@
 .r3ipCustomSelect {
+  --r3ip-surface: #ffffff;
+  --r3ip-ground: #f4f4f5;
+  --r3ip-ink: #111114;
+  --r3ip-muted: #8a8a90;
+  --r3ip-line: #e3e3e6;
+  --r3ip-accent: #2b5fe0;
   position: relative;
   width: 100%;
   text-align: left;
   outline: none;
   min-width: 200px;
+  font-size: 13.5px;
 }
 
 .r3ipCustomSelect .r3ipSelected {
-  background-color: #fff;
-  border-radius: 6px;
-  border: 1px solid rgb(224, 224, 230);
-  color: #333639;
-  padding-left: 1em;
-  padding-right: 1.4em;
+  background-color: var(--r3ip-surface);
+  border-radius: 4px;
+  border: 1px solid var(--r3ip-line);
+  color: var(--r3ip-ink);
+  padding: 0 0.5em 0 0.75em;
   cursor: pointer;
   user-select: none;
   display: flex;
   align-items: center;
+  gap: 6px;
 }
 
-.r3ipCustomSelect.r3ipSmall {
-  height: 24px;
-  line-height: 24px;
+.r3ipCustomSelect .r3ipSelected:focus-visible {
+  outline: 2px solid var(--r3ip-accent);
+  outline-offset: 1px;
 }
 
 .r3ipCustomSelect.r3ipSmall .r3ipSelected {
-  min-height: 24px;
-}
-
-.r3ipCustomSelect.r3ipMedium {
-  height: 34px;
-  line-height: 34px;
+  min-height: 26px;
 }
 
 .r3ipCustomSelect.r3ipMedium .r3ipSelected {
-  min-height: 34px;
-}
-
-.r3ipCustomSelect.r3ipLarge {
-  height: 40px;
-  line-height: 40px;
+  min-height: 32px;
 }
 
 .r3ipCustomSelect.r3ipLarge .r3ipSelected {
@@ -49,64 +46,75 @@
 .r3ipCustomSelect .r3ipSelected .multiple {
   align-items: center;
   display: flex;
+  gap: 5px;
+  flex: 1;
+  min-width: 0;
 }
 
 .r3ipCustomSelect .r3ipSelected .multiple .item {
   display: flex;
-  margin-right: 10px;
 }
 
 .r3ipCustomSelect .r3ipSelected .placeholder {
-  color: silver;
+  color: var(--r3ip-muted);
+  flex: 1;
 }
 
 .r3ipCustomSelect .r3ipSelected.open {
-  border: 1px solid #c2c2c2;
-  border-radius: 6px 6px 0px 0px;
-}
-
-.r3ipCustomSelect .r3ipSelected.open:after {
-  transform: rotate(180deg);
-}
-
-.r3ipCustomSelect.r3ipSmall .r3ipSelected.open:after {
-  top: 5px;
-}
-
-.r3ipCustomSelect.r3ipMedium .r3ipSelected.open:after {
-  top: 10px;
-}
-
-.r3ipCustomSelect.r3ipLarge .r3ipSelected.open:after {
-  top: 14px;
-}
-
-.r3ipCustomSelect .r3ipSelected:after {
-  position: absolute;
-  content: '';
-  right: 1em;
-  width: 0;
-  height: 0;
-  border: 5px solid transparent;
-  border-color: #333639 transparent transparent transparent;
-  transition: transform 0.2s ease;
-}
-
-.r3ipCustomSelect.r3ipSmall .r3ipSelected:after {
-  top: 12px;
-}
-
-.r3ipCustomSelect.r3ipMedium .r3ipSelected:after {
-  top: 16px;
-}
-
-.r3ipCustomSelect.r3ipLarge .r3ipSelected:after {
-  top: 20px;
+  border-color: var(--r3ip-accent);
 }
 
 .r3ipCustomSelect .r3ipSelected.disabled {
   cursor: default;
-  background-color: whitesmoke;
+  background-color: var(--r3ip-ground);
+  color: var(--r3ip-muted);
+}
+
+.r3ipChevron {
+  display: flex;
+  align-items: center;
+  color: var(--r3ip-muted);
+  flex-shrink: 0;
+  transition: transform 0.15s ease;
+}
+.r3ipChevron svg {
+  width: 13px;
+  height: 13px;
+}
+.r3ipChevron.open {
+  transform: rotate(180deg);
+}
+
+.r3ipClearAll,
+.r3ipClear {
+  all: unset;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--r3ip-muted);
+  cursor: pointer;
+  width: 18px;
+  height: 18px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+.r3ipClearAll:hover,
+.r3ipClear:hover {
+  color: var(--r3ip-ink);
+  background: var(--r3ip-ground);
+}
+.r3ipClearAll svg,
+.r3ipClear svg {
+  width: 12px;
+  height: 12px;
+}
+.r3ipClearAll:focus-visible,
+.r3ipClear:focus-visible {
+  outline: 2px solid var(--r3ip-accent);
+  outline-offset: 1px;
+}
+.r3ipClearAll {
+  margin-left: auto;
 }
 
 .r3ipDropdown {
@@ -125,141 +133,120 @@
 }
 
 .r3ipCustomSelect .r3ipItems {
-  color: #222;
-  border-radius: 0px 0px 6px 6px;
+  color: var(--r3ip-ink);
+  border-radius: 0 0 4px 4px;
   overflow: hidden;
-  border-right: 1px solid #c2c2c2;
-  border-left: 1px solid #c2c2c2;
-  border-bottom: 1px solid #c2c2c2;
+  border: 1px solid var(--r3ip-line);
+  border-top: none;
   position: absolute;
-  background-color: #fff;
+  background-color: var(--r3ip-surface);
   left: 0;
   right: 0;
   z-index: 1;
-  max-height: 225px;
+  max-height: 216px;
+  box-shadow: 0 6px 16px rgba(17, 17, 20, 0.08);
 }
 
 .r3ipGridItem {
-  color: #222;
+  all: unset;
+  box-sizing: border-box;
+  color: var(--r3ip-ink);
   cursor: pointer;
   user-select: none;
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 40px;
-  box-sizing: border-box;
+  height: 34px;
+  border-radius: 3px;
 }
 
 .r3ipGridItem:hover {
-  background-color: rgb(243, 243, 245);
+  background-color: var(--r3ip-ground);
+}
+
+.r3ipGridItem:focus-visible {
+  outline: 2px solid var(--r3ip-accent);
+  outline-offset: -2px;
 }
 
 .r3ipGridItem.active {
-  background-color: var(--selected-icon-bg-color, #d3d3d3);
+  box-shadow: inset 0 0 0 1.5px var(--r3ip-accent);
+  background-color: var(--selected-icon-bg-color, #e8edfc);
 }
 
 .r3ipSearch {
   width: 100%;
   display: flex;
-  justify-content: center;
+  align-items: center;
   position: relative;
   z-index: 1;
+  border: 1px solid var(--r3ip-line);
+  border-top: none;
+  background: var(--r3ip-surface);
 }
 
-.r3ipSearch input,
-.r3ipSearch input:focus-visible {
+.r3ipSearchIcon {
+  position: absolute;
+  left: 9px;
+  width: 13px;
+  height: 13px;
+  color: var(--r3ip-muted);
+  pointer-events: none;
+}
+
+.r3ipSearch input {
   width: 100%;
   border-radius: 0;
-  line-height: 30px;
-  border: 0.5px solid #c2c2c2;
-  border-top: none;
-  padding-right: 1em;
-  padding-left: 1em;
-  background: #fff;
+  line-height: 28px;
+  border: none;
+  padding: 0 28px 0 28px;
+  background: transparent;
+  color: var(--r3ip-ink);
+  font: inherit;
 }
 
 .r3ipSearch input:focus-visible {
-  border: 0.5px solid #c2c2c2;
-  border-top: none;
   outline: 0;
 }
 
 .r3ipSearch input::placeholder {
-  color: #c2c2c2;
+  color: var(--r3ip-muted);
+}
+
+.r3ipMeta {
+  padding: 5px 10px;
+  font-size: 11px;
+  color: var(--r3ip-muted);
+  background: var(--r3ip-surface);
+  border-left: 1px solid var(--r3ip-line);
+  border-right: 1px solid var(--r3ip-line);
+  position: relative;
+  z-index: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 .r3ipEmpty {
-  border-radius: 0px 0px 6px 6px;
-  border-right: 1px solid #c2c2c2;
-  border-left: 1px solid #c2c2c2;
-  border-bottom: 1px solid #c2c2c2;
-  background-color: #fff;
-  padding-bottom: 5px;
-  padding-top: 5px;
+  border-radius: 0 0 4px 4px;
+  border: 1px solid var(--r3ip-line);
+  border-top: none;
+  background-color: var(--r3ip-surface);
+  padding: 22px 10px;
   position: relative;
   z-index: 1;
+  box-shadow: 0 6px 16px rgba(17, 17, 20, 0.08);
 }
 
 .r3ipEmpty > .defaultText {
   text-align: center;
+  color: var(--r3ip-muted);
 }
 
 /* Dark theme */
-.r3ipDark.r3ipCustomSelect .r3ipSelected {
-  background-color: #1f1f23;
-  border-color: #3a3a3f;
-  color: #e5e7eb;
-}
-
-.r3ipDark.r3ipCustomSelect .r3ipSelected .placeholder {
-  color: #9ca3af;
-}
-
-.r3ipDark.r3ipCustomSelect .r3ipSelected.open {
-  border-color: #52525b;
-}
-
-.r3ipDark.r3ipCustomSelect .r3ipSelected:after {
-  border-color: #e5e7eb transparent transparent transparent;
-}
-
-.r3ipDark.r3ipCustomSelect .r3ipSelected.disabled {
-  background-color: #2a2a2e;
-  color: #6b7280;
-  cursor: not-allowed;
-}
-
-.r3ipDark.r3ipCustomSelect .r3ipItems {
-  background-color: #1f1f23;
-  border-color: #3a3a3f;
-  color: #e5e7eb;
-}
-
-.r3ipDark.r3ipCustomSelect .r3ipGridItem {
-  color: #e5e7eb;
-}
-
-.r3ipDark.r3ipCustomSelect .r3ipGridItem:hover {
-  background-color: #2a2a2e;
-}
-
-.r3ipDark.r3ipCustomSelect .r3ipGridItem.active {
-  background-color: var(--selected-icon-bg-color, #d3d3d3);
-}
-
-.r3ipDark .r3ipSearch input,
-.r3ipDark .r3ipSearch input:focus-visible {
-  background-color: #1f1f23;
-  border-color: #3a3a3f;
-  color: #e5e7eb;
-}
-
-.r3ipDark .r3ipSearch input::placeholder {
-  color: #9ca3af;
-}
-
-.r3ipDark .r3ipEmpty {
-  background-color: #1f1f23;
-  border-color: #3a3a3f;
-  color: #9ca3af;
+.r3ipDark.r3ipCustomSelect {
+  --r3ip-surface: #18181b;
+  --r3ip-ground: #232327;
+  --r3ip-ink: #f2f2f3;
+  --r3ip-muted: #97979d;
+  --r3ip-line: #2c2c31;
+  --r3ip-accent: #6488ea;
 }

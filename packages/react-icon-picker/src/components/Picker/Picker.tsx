@@ -23,8 +23,8 @@ const Picker: React.FC<IconPickerProps> = ({
   placeholder,
   multiple = false,
   iconLibrary,
-  selectedIconBgColor = '#d3d3d3',
-  selectedIconColor = '#000000',
+  selectedIconBgColor = '#e8edfc',
+  selectedIconColor = '#2b5fe0',
   displaySearch = true,
   multipleLimit = Infinity,
   disabled = false,
@@ -43,6 +43,7 @@ const Picker: React.FC<IconPickerProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [open, setOpen] = useState<boolean>(false)
   const [filteredIcons, setFilteredIcons] = useState<IconResult[]>([])
+  const [isLoading, setIsLoading] = useState<boolean>(false)
   const pickerRef = useRef<HTMLDivElement>(null)
   const scrollerObserverRef = useRef<ResizeObserver | null>(null)
   const [scrollerWidth, setScrollerWidth] = useState(0)
@@ -106,24 +107,33 @@ const Picker: React.FC<IconPickerProps> = ({
 
   /** Shown before the user has typed anything, instead of a blank state. */
   const loadDefaultIcons = async () => {
-    let results: IconResult[]
+    setIsLoading(true)
+    try {
+      let results: IconResult[]
 
-    if (!normalizedPrefixes) {
-      if (!randomDefaultPrefixRef.current) randomDefaultPrefixRef.current = pickRandomPrefix()
-      results = await browseCollection(randomDefaultPrefixRef.current)
-    } else if (normalizedPrefixes.length === 1) {
-      results = await browseCollection(normalizedPrefixes[0]!)
-    } else {
-      results = await browseCollections(normalizedPrefixes)
+      if (!normalizedPrefixes) {
+        if (!randomDefaultPrefixRef.current) randomDefaultPrefixRef.current = pickRandomPrefix()
+        results = await browseCollection(randomDefaultPrefixRef.current)
+      } else if (normalizedPrefixes.length === 1) {
+        results = await browseCollection(normalizedPrefixes[0]!)
+      } else {
+        results = await browseCollections(normalizedPrefixes)
+      }
+
+      setFilteredIcons(applyLocalFilters(results))
+    } finally {
+      setIsLoading(false)
     }
-
-    setFilteredIcons(applyLocalFilters(results))
   }
 
   // Initial default load, and reload when the library scope changes while no
-  // search is active.
+  // search is active. Deferred via setTimeout (rather than called directly)
+  // so the state update happens after an async boundary, same as the search
+  // effect below - keeps calling code outside the effect's synchronous body.
   useEffect(() => {
-    if (!searchQuery.trim()) loadDefaultIcons()
+    if (searchQuery.trim()) return
+    const timeoutId = setTimeout(loadDefaultIcons, 0)
+    return () => clearTimeout(timeoutId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(normalizedPrefixes)])
 
@@ -138,13 +148,34 @@ const Picker: React.FC<IconPickerProps> = ({
         return
       }
 
-      const results = await searchIcons(searchQuery, { prefixes: normalizedPrefixes })
-      setFilteredIcons(applyLocalFilters(results))
+      setIsLoading(true)
+      try {
+        const results = await searchIcons(searchQuery, { prefixes: normalizedPrefixes })
+        setFilteredIcons(applyLocalFilters(results))
+      } finally {
+        setIsLoading(false)
+      }
     }, 300)
 
     return () => clearTimeout(timeoutId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, JSON.stringify(normalizedPrefixes), JSON.stringify(includeIcons), JSON.stringify(excludeIcons)])
+
+  const statusText = isLoading
+    ? 'Loading…'
+    : filteredIcons.length
+      ? `${filteredIcons.length} ${
+          searchQuery.trim()
+            ? filteredIcons.length === 1
+              ? 'result'
+              : 'results'
+            : filteredIcons.length === 1
+              ? 'icon'
+              : 'icons'
+        }`
+      : ''
+
+  const clearSearch = () => setSearchQuery('')
 
   /** Resolves the value to store for a freshly selected icon (async for valueType: 'svg'). */
   const getResolvedValue = useCallback(
@@ -185,6 +216,10 @@ const Picker: React.FC<IconPickerProps> = ({
     [applyToggle]
   )
 
+  const clearAll = useCallback(() => {
+    onChange(multiple ? [] : null)
+  }, [multiple, onChange])
+
   const isGridIconSelected = useCallback(
     (icon: IconResult): boolean => {
       if (valueType === 'name') {
@@ -205,10 +240,26 @@ const Picker: React.FC<IconPickerProps> = ({
     }
   }
 
-  // Virtual grid settings
-  const columnCount = 4
+  const onTriggerKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      handleToggle()
+    }
+  }
+
+  const onPickerKeyDown = (event: React.KeyboardEvent) => {
+    if (event.key === 'Escape' && open) {
+      event.stopPropagation()
+      setOpen(false)
+    }
+  }
+
+  // Virtual grid settings - column count adapts to the picker's own width
+  // instead of a fixed 4, so narrow (sidebar) and wide embeddings both keep
+  // a comfortable cell size.
+  const columnCount = scrollerWidth ? Math.max(3, Math.min(8, Math.floor(scrollerWidth / 34))) : 4
   const columnWidth = scrollerWidth / columnCount || 50
-  const rowHeight = 40
+  const rowHeight = 34
   const rowCount = Math.ceil(filteredIcons.length / columnCount)
 
   const Cell = ({ ariaAttributes, columnIndex, rowIndex, style }: CellComponentProps) => {
@@ -218,14 +269,17 @@ const Picker: React.FC<IconPickerProps> = ({
     const item = filteredIcons[index]!
 
     return (
-      <div
+      <button
+        type="button"
         {...ariaAttributes}
         style={style}
         className={`${styles.r3ipGridItem} ${isGridIconSelected(item) ? styles.active : ''}`}
+        title={item.name}
+        aria-pressed={isGridIconSelected(item)}
         onClick={() => onGridItemSelected(item)}>
         <ItemIcon
           data={item.name}
-          size={24}
+          size={18}
           color={
             isGridIconSelected(item)
               ? selectedIconColor
@@ -234,7 +288,7 @@ const Picker: React.FC<IconPickerProps> = ({
                 : '#222'
           }
         />
-      </div>
+      </button>
     )
   }
 
@@ -247,10 +301,15 @@ const Picker: React.FC<IconPickerProps> = ({
           '--selected-icon-bg-color': selectedIconBgColor,
           ...restStyle,
         } as React.CSSProperties
-      }>
+      }
+      onKeyDown={onPickerKeyDown}>
       <div
         className={`${styles.r3ipSelected} ${open ? styles.open : ''} ${disabled ? styles.disabled : ''}`}
-        onClick={handleToggle}>
+        role="button"
+        aria-expanded={open}
+        tabIndex={disabled ? -1 : 0}
+        onClick={handleToggle}
+        onKeyDown={onTriggerKeyDown}>
         {((!multiple && value) || (multiple && Array.isArray(value) && value.length)) ? (
           <>
             {multiple ? (
@@ -262,7 +321,7 @@ const Picker: React.FC<IconPickerProps> = ({
                         <div className={styles.item}>
                           <ItemIcon
                             data={val}
-                            size={20}
+                            size={18}
                             color={theme === 'dark' ? '#e5e7eb' : '#222'}
                             onClick={(e: React.MouseEvent) => {
                               e.stopPropagation()
@@ -278,11 +337,23 @@ const Picker: React.FC<IconPickerProps> = ({
                     <b>+{value.length - selectedItemsToDisplay}</b>
                   </div>
                 )}
+                {Array.isArray(value) && value.length > 0 && (
+                  <button
+                    type="button"
+                    className={styles.r3ipClearAll}
+                    title="Clear all"
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      clearAll()
+                    }}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                  </button>
+                )}
               </div>
             ) : (
               <ItemIcon
                 data={value as string}
-                size={20}
+                size={18}
                 color={theme === 'dark' ? '#e5e7eb' : '#222'}
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation()
@@ -294,20 +365,32 @@ const Picker: React.FC<IconPickerProps> = ({
         ) : (
           <span className={styles.placeholder}>{placeholder}</span>
         )}
+        <span className={`${styles.r3ipChevron} ${open ? styles.open : ''}`}>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+        </span>
       </div>
 
       <div className={`${styles.r3ipDropdown} ${open ? styles.r3ipDropdownOpen : ''}`}>
         {displaySearch && (
           <div className={styles.r3ipSearch}>
+            <svg className={styles.r3ipSearchIcon} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
             <input
               type="text"
               name="search"
+              aria-label="Search icons"
               placeholder={searchPlaceholder}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
+            {searchQuery && (
+              <button type="button" className={styles.r3ipClear} title="Clear search" onClick={clearSearch}>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+              </button>
+            )}
           </div>
         )}
+
+        {statusText && <div className={styles.r3ipMeta}>{statusText}</div>}
 
         {filteredIcons && filteredIcons.length ? (
           <div ref={scrollerRef} className={styles.r3ipItems}>
@@ -319,7 +402,7 @@ const Picker: React.FC<IconPickerProps> = ({
                 columnWidth={columnWidth - 5}
                 rowCount={rowCount}
                 rowHeight={rowHeight}
-                style={{ height: Math.min(225, rowCount * rowHeight), width: scrollerWidth }}
+                style={{ height: Math.min(216, rowCount * rowHeight), width: scrollerWidth }}
               />
             )}
           </div>
