@@ -542,16 +542,23 @@
     display: flex;
   }
 
+  /* vue-virtual-scroller wraps each rendered item in its own sized
+   * .vue-recycle-scroller__item-view div (unlike react-window, which
+   * applies the cell's explicit width/height directly to the cell content
+   * itself) - without an explicit width/height here, the button shrinks to
+   * its icon's intrinsic size and sits left-aligned in the cell instead of
+   * filling and centering within it. */
   .v3ip__custom-select .v3ip__items button {
     all: unset;
     box-sizing: border-box;
+    width: 100%;
+    height: 100%;
     color: var(--v3ip-ink);
     cursor: pointer;
     user-select: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 30px;
     border-radius: 3px;
   }
 
