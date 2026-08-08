@@ -44,6 +44,12 @@ const Picker: React.FC<IconPickerProps> = ({
   const [open, setOpen] = useState<boolean>(false)
   const [filteredIcons, setFilteredIcons] = useState<IconResult[]>([])
   const [isLoading, setIsLoading] = useState<boolean>(false)
+  // Bumped on every committed result set and used as the Grid's key below -
+  // forces react-window to fully remount instead of recycling its DOM pool
+  // across drastically different item counts (e.g. going from a 6000+ item
+  // default browse to a 30-item search), which was observed to occasionally
+  // leave stale pooled cells rendered on screen.
+  const [resultVersion, setResultVersion] = useState(0)
   const pickerRef = useRef<HTMLDivElement>(null)
   const scrollerObserverRef = useRef<ResizeObserver | null>(null)
   const [scrollerWidth, setScrollerWidth] = useState(0)
@@ -106,23 +112,35 @@ const Picker: React.FC<IconPickerProps> = ({
     })
 
   /** Shown before the user has typed anything, instead of a blank state. */
-  const loadDefaultIcons = async () => {
+  const fetchDefaultIcons = async (): Promise<IconResult[]> => {
+    if (!normalizedPrefixes) {
+      if (!randomDefaultPrefixRef.current) randomDefaultPrefixRef.current = pickRandomPrefix()
+      return browseCollection(randomDefaultPrefixRef.current)
+    } else if (normalizedPrefixes.length === 1) {
+      return browseCollection(normalizedPrefixes[0]!)
+    }
+    return browseCollections(normalizedPrefixes)
+  }
+
+  // The default-load (on mount/prefix change) and the debounced search below
+  // both write to `filteredIcons` asynchronously - without this guard,
+  // whichever network response happens to land last wins, even if it's the
+  // stale one (e.g. a slow initial default-collection fetch resolving after
+  // a fast search response, silently clobbering the search results).
+  const latestRequestIdRef = useRef(0)
+
+  const runSearch = async (query: string) => {
+    const requestId = ++latestRequestIdRef.current
     setIsLoading(true)
     try {
-      let results: IconResult[]
-
-      if (!normalizedPrefixes) {
-        if (!randomDefaultPrefixRef.current) randomDefaultPrefixRef.current = pickRandomPrefix()
-        results = await browseCollection(randomDefaultPrefixRef.current)
-      } else if (normalizedPrefixes.length === 1) {
-        results = await browseCollection(normalizedPrefixes[0]!)
-      } else {
-        results = await browseCollections(normalizedPrefixes)
-      }
-
+      const results = query.trim()
+        ? await searchIcons(query, { prefixes: normalizedPrefixes })
+        : await fetchDefaultIcons()
+      if (requestId !== latestRequestIdRef.current) return // superseded by a newer request
       setFilteredIcons(applyLocalFilters(results))
+      setResultVersion((v) => v + 1)
     } finally {
-      setIsLoading(false)
+      if (requestId === latestRequestIdRef.current) setIsLoading(false)
     }
   }
 
@@ -132,7 +150,7 @@ const Picker: React.FC<IconPickerProps> = ({
   // effect below - keeps calling code outside the effect's synchronous body.
   useEffect(() => {
     if (searchQuery.trim()) return
-    const timeoutId = setTimeout(loadDefaultIcons, 0)
+    const timeoutId = setTimeout(() => runSearch(''), 0)
     return () => clearTimeout(timeoutId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [JSON.stringify(normalizedPrefixes)])
@@ -142,21 +160,7 @@ const Picker: React.FC<IconPickerProps> = ({
   // shouldn't be mutated during render, and this reads the latest
   // includeIcons/excludeIcons via the closure instead.
   useEffect(() => {
-    const timeoutId = setTimeout(async () => {
-      if (!searchQuery.trim()) {
-        loadDefaultIcons()
-        return
-      }
-
-      setIsLoading(true)
-      try {
-        const results = await searchIcons(searchQuery, { prefixes: normalizedPrefixes })
-        setFilteredIcons(applyLocalFilters(results))
-      } finally {
-        setIsLoading(false)
-      }
-    }, 300)
-
+    const timeoutId = setTimeout(() => runSearch(searchQuery), 300)
     return () => clearTimeout(timeoutId)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, JSON.stringify(normalizedPrefixes), JSON.stringify(includeIcons), JSON.stringify(excludeIcons)])
@@ -396,6 +400,7 @@ const Picker: React.FC<IconPickerProps> = ({
           <div ref={scrollerRef} className={styles.r3ipItems}>
             {scrollerWidth > 0 && (
               <Grid
+                key={resultVersion}
                 cellComponent={Cell}
                 cellProps={{}}
                 columnCount={columnCount}

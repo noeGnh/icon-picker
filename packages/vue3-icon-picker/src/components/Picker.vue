@@ -71,6 +71,12 @@
   const open = ref<boolean>(false)
   const filteredIcons = ref<IconResult[]>([])
   const isLoading = ref<boolean>(false)
+  // Bumped on every committed result set and used as the scroller's :key
+  // below - forces vue-virtual-scroller to fully remount instead of
+  // recycling its DOM pool across drastically different item counts (e.g.
+  // going from a 6000+ item default browse to a 30-item search), which was
+  // observed to occasionally leave stale pooled cells rendered on screen.
+  const resultVersion = ref(0)
 
   const normalizedPrefixes = computed(() => {
     if (!props.iconLibrary) return undefined
@@ -96,33 +102,37 @@
   const randomDefaultPrefix = ref<string>()
 
   /** Shown before the user has typed anything, instead of a blank state. */
-  const loadDefaultIcons = async () => {
+  const fetchDefaultIcons = async (): Promise<IconResult[]> => {
     const prefixes = normalizedPrefixes.value
-    let results: IconResult[]
 
     if (!prefixes) {
       if (!randomDefaultPrefix.value) randomDefaultPrefix.value = pickRandomPrefix()
-      results = await browseCollection(randomDefaultPrefix.value)
+      return browseCollection(randomDefaultPrefix.value)
     } else if (prefixes.length === 1) {
-      results = await browseCollection(prefixes[0]!)
-    } else {
-      results = await browseCollections(prefixes)
+      return browseCollection(prefixes[0]!)
     }
-
-    filteredIcons.value = applyLocalFilters(results)
+    return browseCollections(prefixes)
   }
 
+  // The default-load (on mount/prefix change) and the debounced search below
+  // both write to `filteredIcons` asynchronously - without this guard,
+  // whichever network response happens to land last wins, even if it's the
+  // stale one (e.g. a slow initial default-collection fetch resolving after
+  // a fast search response, silently clobbering the search results).
+  let latestRequestId = 0
+
   const runSearch = async (query: string) => {
+    const requestId = ++latestRequestId
     isLoading.value = true
     try {
-      if (!query.trim()) {
-        await loadDefaultIcons()
-        return
-      }
-      const results = await searchIcons(query, { prefixes: normalizedPrefixes.value })
+      const results = query.trim()
+        ? await searchIcons(query, { prefixes: normalizedPrefixes.value })
+        : await fetchDefaultIcons()
+      if (requestId !== latestRequestId) return // superseded by a newer request
       filteredIcons.value = applyLocalFilters(results)
+      resultVersion.value++
     } finally {
-      isLoading.value = false
+      if (requestId === latestRequestId) isLoading.value = false
     }
   }
 
@@ -314,6 +324,7 @@
         <div v-if="statusText" class="v3ip__meta">{{ statusText }}</div>
         <template v-if="filteredIcons && filteredIcons.length">
           <RecycleScroller
+            :key="resultVersion"
             ref="scroller"
             class="v3ip__items"
             key-field="name"

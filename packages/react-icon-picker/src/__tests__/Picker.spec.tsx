@@ -175,6 +175,26 @@ describe('Picker search + selection', () => {
     await waitFor(() => expect(getByText('No icons')).toBeTruthy())
   })
 
+  it('does not let a slow initial default-load overwrite a faster, newer search result (race condition regression)', async () => {
+    let resolveDefaultBrowse!: (value: unknown) => void
+    browseCollectionMock.mockReturnValue(new Promise((resolve) => (resolveDefaultBrowse = resolve)))
+
+    // Mounting kicks off the initial default-load (browseCollection), which
+    // we're deliberately leaving unresolved so it's still in flight below.
+    const { container } = render(<Picker value={null} onChange={vi.fn()} iconLibrary="carbon" />)
+
+    const input = container.querySelector('input[name="search"]') as HTMLInputElement
+    fireEvent.change(input, { target: { value: 'home' } })
+    await waitForIcon(container, 'tabler:home')
+
+    // The slow default-load finally resolves, arriving after the search
+    // already committed its (newer) results - it must not clobber them.
+    resolveDefaultBrowse(DEFAULT_BROWSE_RESULTS)
+    await new Promise((resolve) => setTimeout(resolve, 50))
+
+    expect(container.querySelector('[data-icon="tabler:home"]')).not.toBeNull()
+  })
+
   it('shows a clear button once there is a query, which clears it and reloads the default set', async () => {
     const { container } = render(<Picker value={null} onChange={vi.fn()} iconLibrary="carbon" />)
     await findGridCell(container)

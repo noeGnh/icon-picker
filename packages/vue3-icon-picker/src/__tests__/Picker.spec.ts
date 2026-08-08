@@ -167,6 +167,28 @@ describe('Picker search + selection', () => {
     expect(wrapper.find('.v3ip__empty').text()).toContain('No icons')
   })
 
+  it('does not let a slow initial default-load overwrite a faster, newer search result (race condition regression)', async () => {
+    let resolveDefaultBrowse!: (value: unknown) => void
+    browseCollectionMock.mockReturnValue(new Promise((resolve) => (resolveDefaultBrowse = resolve)))
+
+    // Mounting kicks off the initial default-load (browseCollection), which
+    // we're deliberately leaving unresolved so it's still in flight below.
+    const wrapper = mount(Picker, { props: { modelValue: null, iconLibrary: 'tabler' } })
+
+    await wrapper.find('input[name="search"]').setValue('home')
+    vi.advanceTimersByTime(300)
+    await flushPromises()
+
+    expect(wrapper.find('.v3ip__items > button').attributes('title')).toBe('tabler:home')
+
+    // The slow default-load finally resolves, arriving after the search
+    // already committed its (newer) results - it must not clobber them.
+    resolveDefaultBrowse(DEFAULT_BROWSE_RESULTS)
+    await flushPromises()
+
+    expect(wrapper.find('.v3ip__items > button').attributes('title')).toBe('tabler:home')
+  })
+
   it('shows a clear button once there is a query, which clears it and reloads the default set', async () => {
     const wrapper = await mountAndWaitForDefaults({ modelValue: null, iconLibrary: 'carbon' })
 
