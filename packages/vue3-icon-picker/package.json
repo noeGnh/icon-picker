@@ -58,6 +58,7 @@
   },
   "dependencies": {
     "@vueuse/core": "^14.3.0",
+    "dompurify": "^3.4.13",
     "lodash.uniqby": "^4.7.0",
     "vue-virtual-scroller": "3.0.4"
   },

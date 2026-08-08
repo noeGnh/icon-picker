@@ -1,3 +1,4 @@
+import DOMPurify from 'dompurify'
 import React, { useEffect, useState, useRef } from 'react'
 import { getIconFromCache, setIconInCache } from '../../cache'
 import { isSVG, isURL, useIconsLoader } from '../../utils'
@@ -63,7 +64,9 @@ const Icon: React.FC<IconProps> = ({ data, color, size = 24, style: restStyle, c
       if (isURL(data)) {
         fetchData(data)
       } else if (isSVG(data)) {
-        setSvgCode(data)
+        setSvgCode(
+          DOMPurify.sanitize(data, { USE_PROFILES: { svg: true, svgFilters: true } })
+        )
       } else {
         const iconsList = await prepareData()
         const url = iconsList?.find((icon) => icon.name === data)?.svgUrl || ''

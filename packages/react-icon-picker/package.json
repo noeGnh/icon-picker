@@ -40,6 +40,7 @@
     "react-dom": "^19.2.6"
   },
   "dependencies": {
+    "dompurify": "^3.4.13",
     "lodash.uniqby": "^4.7.0",
     "react-window": "^2.2.7"
   },

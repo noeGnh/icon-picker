@@ -1,4 +1,6 @@
 <script setup lang="ts">
+  import DOMPurify from 'dompurify'
+
   import { getIconFromCache, setIconInCache } from '../cache'
   import { isSVG, isURL, useIconsLoader } from '../utils'
 
@@ -76,7 +78,9 @@
       if (isURL(val)) {
         fetchData(val)
       } else if (isSVG(val)) {
-        svgCode.value = val
+        svgCode.value = DOMPurify.sanitize(val, {
+          USE_PROFILES: { svg: true, svgFilters: true },
+        })
       } else {
         const iconsList = await prepareData()
 
