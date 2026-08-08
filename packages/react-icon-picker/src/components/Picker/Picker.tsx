@@ -2,8 +2,11 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Grid, type CellComponentProps } from 'react-window'
 import { buildIcon, loadIcon } from '@iconify/react'
 import {
+  browseCollection,
+  browseCollections,
   getSanitizedSvgFromCache,
   isIconSelected as coreIsIconSelected,
+  pickRandomPrefix,
   resolveIconSvgValue,
   searchIcons,
   toggleIconSelection,
@@ -86,6 +89,40 @@ const Picker: React.FC<IconPickerProps> = ({
       : [iconLibrary]
     : undefined
 
+  // Stable for the component's lifetime so clearing the search box doesn't
+  // re-randomize the default set shown.
+  const randomDefaultPrefixRef = useRef<string | undefined>(undefined)
+
+  const applyLocalFilters = (results: IconResult[]) =>
+    results.filter((icon) => {
+      const belongsToIncludes = !includeIcons?.length || includeIcons.includes(icon.name)
+      const doesNotBelongToExcludes = !excludeIcons?.length || !excludeIcons.includes(icon.name)
+      return belongsToIncludes && doesNotBelongToExcludes
+    })
+
+  /** Shown before the user has typed anything, instead of a blank state. */
+  const loadDefaultIcons = async () => {
+    let results: IconResult[]
+
+    if (!normalizedPrefixes) {
+      if (!randomDefaultPrefixRef.current) randomDefaultPrefixRef.current = pickRandomPrefix()
+      results = await browseCollection(randomDefaultPrefixRef.current)
+    } else if (normalizedPrefixes.length === 1) {
+      results = await browseCollection(normalizedPrefixes[0]!)
+    } else {
+      results = await browseCollections(normalizedPrefixes)
+    }
+
+    setFilteredIcons(applyLocalFilters(results))
+  }
+
+  // Initial default load, and reload when the library scope changes while no
+  // search is active.
+  useEffect(() => {
+    if (!searchQuery.trim()) loadDefaultIcons()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [JSON.stringify(normalizedPrefixes)])
+
   // Debounce by cancelling the previous scheduled search in the effect
   // cleanup, rather than wrapping in a stateful debounce() helper - refs
   // shouldn't be mutated during render, and this reads the latest
@@ -93,20 +130,12 @@ const Picker: React.FC<IconPickerProps> = ({
   useEffect(() => {
     const timeoutId = setTimeout(async () => {
       if (!searchQuery.trim()) {
-        setFilteredIcons([])
+        loadDefaultIcons()
         return
       }
 
       const results = await searchIcons(searchQuery, { prefixes: normalizedPrefixes })
-
-      setFilteredIcons(
-        results.filter((icon) => {
-          const belongsToIncludes = !includeIcons?.length || includeIcons.includes(icon.name)
-          const doesNotBelongToExcludes =
-            !excludeIcons?.length || !excludeIcons.includes(icon.name)
-          return belongsToIncludes && doesNotBelongToExcludes
-        })
-      )
+      setFilteredIcons(applyLocalFilters(results))
     }, 300)
 
     return () => clearTimeout(timeoutId)

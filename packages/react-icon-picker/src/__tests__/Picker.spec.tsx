@@ -39,20 +39,36 @@ vi.mock('@iconify/react', () => ({
   buildIcon: buildIconMock,
 }))
 
-const { searchIconsMock } = vi.hoisted(() => ({ searchIconsMock: vi.fn() }))
+const { searchIconsMock, browseCollectionMock, browseCollectionsMock, pickRandomPrefixMock } = vi.hoisted(() => ({
+  searchIconsMock: vi.fn(),
+  browseCollectionMock: vi.fn(),
+  browseCollectionsMock: vi.fn(),
+  pickRandomPrefixMock: vi.fn(),
+}))
 
 vi.mock('@arkn/icon-picker-core', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@arkn/icon-picker-core')>()
-  return { ...actual, searchIcons: searchIconsMock }
+  return {
+    ...actual,
+    searchIcons: searchIconsMock,
+    browseCollection: browseCollectionMock,
+    browseCollections: browseCollectionsMock,
+    pickRandomPrefix: pickRandomPrefixMock,
+  }
 })
 
 import Picker from '../components/Picker/Picker'
 
 const SEARCH_RESULTS = [{ name: 'tabler:home', prefix: 'tabler', icon: 'home' }]
+const DEFAULT_BROWSE_RESULTS = [{ name: 'tabler:activity', prefix: 'tabler', icon: 'activity' }]
 
 async function search(container: HTMLElement, query: string) {
   const input = container.querySelector('input[name="search"]') as HTMLInputElement
   fireEvent.change(input, { target: { value: query } })
+  if (!query.trim()) {
+    await waitFor(() => expect(browseCollectionMock.mock.calls.length + browseCollectionsMock.mock.calls.length).toBeGreaterThan(0))
+    return
+  }
   await waitFor(() => expect(searchIconsMock).toHaveBeenCalled())
 }
 
@@ -64,15 +80,27 @@ async function findGridCell(container: HTMLElement) {
   })
 }
 
+/** Waits until a grid cell actually renders the given icon, not just that a
+ * mock was called - avoids racing a still-in-flight previous update. */
+async function waitForIcon(container: HTMLElement, iconName: string) {
+  return waitFor(() => {
+    expect(container.querySelector(`[data-icon="${iconName}"]`)).not.toBeNull()
+  })
+}
+
 describe('Picker search + selection', () => {
   beforeEach(() => {
     searchIconsMock.mockReset().mockResolvedValue(SEARCH_RESULTS)
+    browseCollectionMock.mockReset().mockResolvedValue(DEFAULT_BROWSE_RESULTS)
+    browseCollectionsMock.mockReset().mockResolvedValue(DEFAULT_BROWSE_RESULTS)
+    pickRandomPrefixMock.mockReset().mockReturnValue('tabler')
     loadIconMock.mockReset()
     buildIconMock.mockReset()
   })
 
   it('debounces then calls searchIcons with the typed query', async () => {
     const { container } = render(<Picker value={null} onChange={vi.fn()} />)
+    await findGridCell(container) // wait out the initial default load
     await search(container, 'home')
 
     expect(searchIconsMock).toHaveBeenCalledWith('home', { prefixes: undefined })
@@ -83,6 +111,7 @@ describe('Picker search + selection', () => {
     const { container } = render(
       <Picker value={null} onChange={vi.fn()} iconLibrary={['tabler', 'carbon']} />
     )
+    await findGridCell(container)
     await search(container, 'home')
 
     expect(searchIconsMock).toHaveBeenCalledWith('home', { prefixes: ['tabler', 'carbon'] })
@@ -91,6 +120,7 @@ describe('Picker search + selection', () => {
   it('name mode (default): selecting an icon calls onChange with its identifier directly', async () => {
     const onChange = vi.fn()
     const { container } = render(<Picker value={null} onChange={onChange} />)
+    await findGridCell(container)
     await search(container, 'home')
 
     fireEvent.click(await findGridCell(container))
@@ -109,6 +139,7 @@ describe('Picker search + selection', () => {
 
     const onChange = vi.fn()
     const { container } = render(<Picker value={null} onChange={onChange} valueType="svg" />)
+    await findGridCell(container)
     await search(container, 'home')
 
     fireEvent.click(await findGridCell(container))
@@ -125,6 +156,7 @@ describe('Picker search + selection', () => {
     const { container } = render(
       <Picker value={['tabler:home']} onChange={onChange} multiple />
     )
+    await findGridCell(container)
     await search(container, 'home')
 
     fireEvent.click(await findGridCell(container))
@@ -137,8 +169,71 @@ describe('Picker search + selection', () => {
     const { container, getByText } = render(
       <Picker value={null} onChange={vi.fn()} emptyText="No icons" />
     )
+    await findGridCell(container)
     await search(container, 'zzz')
 
     await waitFor(() => expect(getByText('No icons')).toBeTruthy())
+  })
+
+  describe('default icons (before typing anything)', () => {
+    it('browses a random prefix when no iconLibrary is set', async () => {
+      const { container } = render(<Picker value={null} onChange={vi.fn()} />)
+      await findGridCell(container)
+
+      expect(pickRandomPrefixMock).toHaveBeenCalled()
+      expect(browseCollectionMock).toHaveBeenCalledWith('tabler')
+    })
+
+    it('browses the given collection when iconLibrary is a single prefix', async () => {
+      const { container } = render(<Picker value={null} onChange={vi.fn()} iconLibrary="carbon" />)
+      await findGridCell(container)
+
+      expect(pickRandomPrefixMock).not.toHaveBeenCalled()
+      expect(browseCollectionMock).toHaveBeenCalledWith('carbon')
+      expect(browseCollectionsMock).not.toHaveBeenCalled()
+    })
+
+    it('browses all given collections when iconLibrary has several prefixes', async () => {
+      const { container } = render(
+        <Picker value={null} onChange={vi.fn()} iconLibrary={['tabler', 'carbon']} />
+      )
+      await findGridCell(container)
+
+      expect(browseCollectionsMock).toHaveBeenCalledWith(['tabler', 'carbon'])
+      expect(browseCollectionMock).not.toHaveBeenCalled()
+    })
+
+    it('reloads the default set when clearing the search box', async () => {
+      const { container } = render(<Picker value={null} onChange={vi.fn()} iconLibrary="carbon" />)
+      await waitForIcon(container, 'tabler:activity') // default browse settled
+
+      const input = container.querySelector('input[name="search"]') as HTMLInputElement
+      fireEvent.change(input, { target: { value: 'home' } })
+      await waitForIcon(container, 'tabler:home') // search fully settled
+
+      browseCollectionMock.mockClear()
+      fireEvent.change(input, { target: { value: '' } })
+      await waitForIcon(container, 'tabler:activity') // default reloaded
+
+      expect(browseCollectionMock).toHaveBeenCalledWith('carbon')
+    })
+
+    it('keeps the same random prefix across reloads instead of re-randomizing', async () => {
+      pickRandomPrefixMock.mockReturnValue('fluent')
+      const { container } = render(<Picker value={null} onChange={vi.fn()} />)
+      await waitForIcon(container, 'tabler:activity') // default browse settled
+      expect(browseCollectionMock).toHaveBeenLastCalledWith('fluent')
+
+      browseCollectionMock.mockClear()
+      const input = container.querySelector('input[name="search"]') as HTMLInputElement
+      fireEvent.change(input, { target: { value: 'home' } })
+      await waitForIcon(container, 'tabler:home')
+
+      fireEvent.change(input, { target: { value: '' } })
+      await waitForIcon(container, 'tabler:activity')
+
+      expect(pickRandomPrefixMock).toHaveBeenCalledTimes(1)
+      expect(browseCollectionMock).toHaveBeenCalledWith('fluent')
+    })
   })
 })

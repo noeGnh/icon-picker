@@ -6,9 +6,12 @@
   import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
   import {
+    browseCollection,
+    browseCollections,
     debounce,
     getSanitizedSvgFromCache,
     isIconSelected as coreIsIconSelected,
+    pickRandomPrefix,
     resolveIconSvgValue,
     searchIcons,
     toggleIconSelection,
@@ -83,9 +86,30 @@
     })
   }
 
+  // Stable for the component's lifetime so clearing the search box doesn't
+  // re-randomize the default set shown.
+  const randomDefaultPrefix = ref<string>()
+
+  /** Shown before the user has typed anything, instead of a blank state. */
+  const loadDefaultIcons = async () => {
+    const prefixes = normalizedPrefixes.value
+    let results: IconResult[]
+
+    if (!prefixes) {
+      if (!randomDefaultPrefix.value) randomDefaultPrefix.value = pickRandomPrefix()
+      results = await browseCollection(randomDefaultPrefix.value)
+    } else if (prefixes.length === 1) {
+      results = await browseCollection(prefixes[0]!)
+    } else {
+      results = await browseCollections(prefixes)
+    }
+
+    filteredIcons.value = applyLocalFilters(results)
+  }
+
   const runSearch = async (query: string) => {
     if (!query.trim()) {
-      filteredIcons.value = []
+      await loadDefaultIcons()
       return
     }
     const results = await searchIcons(query, { prefixes: normalizedPrefixes.value })
@@ -94,6 +118,16 @@
 
   const debouncedSearch = debounce(runSearch, 300)
   watch(searchQuery, (query) => debouncedSearch(query))
+
+  // Initial default load, and reload when the library scope changes while no
+  // search is active.
+  watch(
+    normalizedPrefixes,
+    () => {
+      if (!searchQuery.value.trim()) loadDefaultIcons()
+    },
+    { immediate: true, deep: true }
+  )
 
   /** Resolves the value to store for a freshly selected icon (async for valueType: 'svg'). */
   const getResolvedValue = async (icon: IconResult): Promise<string | undefined> => {

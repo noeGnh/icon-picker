@@ -47,16 +47,34 @@ vi.mock('@iconify/vue', () => ({
   buildIcon: buildIconMock,
 }))
 
-const { searchIconsMock } = vi.hoisted(() => ({ searchIconsMock: vi.fn() }))
+const { searchIconsMock, browseCollectionMock, browseCollectionsMock, pickRandomPrefixMock } = vi.hoisted(() => ({
+  searchIconsMock: vi.fn(),
+  browseCollectionMock: vi.fn(),
+  browseCollectionsMock: vi.fn(),
+  pickRandomPrefixMock: vi.fn(),
+}))
 
 vi.mock('@arkn/icon-picker-core', async (importOriginal) => {
   const actual = await importOriginal<typeof import('@arkn/icon-picker-core')>()
-  return { ...actual, searchIcons: searchIconsMock }
+  return {
+    ...actual,
+    searchIcons: searchIconsMock,
+    browseCollection: browseCollectionMock,
+    browseCollections: browseCollectionsMock,
+    pickRandomPrefix: pickRandomPrefixMock,
+  }
 })
 
 import Picker from '../components/Picker.vue'
 
 const SEARCH_RESULTS = [{ name: 'tabler:home', prefix: 'tabler', icon: 'home' }]
+const DEFAULT_BROWSE_RESULTS = [{ name: 'tabler:activity', prefix: 'tabler', icon: 'activity' }]
+
+async function mountAndWaitForDefaults(props: Record<string, unknown>) {
+  const wrapper = mount(Picker, { props })
+  await flushPromises()
+  return wrapper
+}
 
 async function typeAndDebounce(wrapper: ReturnType<typeof mount>, query: string) {
   await wrapper.find('input[name="search"]').setValue(query)
@@ -68,6 +86,9 @@ describe('Picker search + selection', () => {
   beforeEach(() => {
     vi.useFakeTimers()
     searchIconsMock.mockReset().mockResolvedValue(SEARCH_RESULTS)
+    browseCollectionMock.mockReset().mockResolvedValue(DEFAULT_BROWSE_RESULTS)
+    browseCollectionsMock.mockReset().mockResolvedValue(DEFAULT_BROWSE_RESULTS)
+    pickRandomPrefixMock.mockReset().mockReturnValue('tabler')
     loadIconMock.mockReset()
     buildIconMock.mockReset()
   })
@@ -77,7 +98,7 @@ describe('Picker search + selection', () => {
   })
 
   it('debounces the search query before calling searchIcons', async () => {
-    const wrapper = mount(Picker, { props: { modelValue: null } })
+    const wrapper = await mountAndWaitForDefaults({ modelValue: null })
 
     await wrapper.find('input[name="search"]').setValue('home')
     expect(searchIconsMock).not.toHaveBeenCalled()
@@ -90,14 +111,14 @@ describe('Picker search + selection', () => {
   })
 
   it('restricts the search to the given iconLibrary prefixes', async () => {
-    const wrapper = mount(Picker, { props: { modelValue: null, iconLibrary: ['tabler', 'carbon'] } })
+    const wrapper = await mountAndWaitForDefaults({ modelValue: null, iconLibrary: ['tabler', 'carbon'] })
     await typeAndDebounce(wrapper, 'home')
 
     expect(searchIconsMock).toHaveBeenCalledWith('home', { prefixes: ['tabler', 'carbon'] })
   })
 
   it('name mode (default): selecting an icon emits its identifier directly', async () => {
-    const wrapper = mount(Picker, { props: { modelValue: null } })
+    const wrapper = await mountAndWaitForDefaults({ modelValue: null })
     await typeAndDebounce(wrapper, 'home')
 
     await wrapper.find('.v3ip__items > div').trigger('click')
@@ -114,7 +135,7 @@ describe('Picker search + selection', () => {
       body: '<path d="M0 0"/>',
     })
 
-    const wrapper = mount(Picker, { props: { modelValue: null, valueType: 'svg' } })
+    const wrapper = await mountAndWaitForDefaults({ modelValue: null, valueType: 'svg' })
     await typeAndDebounce(wrapper, 'home')
 
     await wrapper.find('.v3ip__items > div').trigger('click')
@@ -129,9 +150,7 @@ describe('Picker search + selection', () => {
   })
 
   it('multi-select: toggles an icon off when clicked again', async () => {
-    const wrapper = mount(Picker, {
-      props: { modelValue: ['tabler:home'], multiple: true },
-    })
+    const wrapper = await mountAndWaitForDefaults({ modelValue: ['tabler:home'], multiple: true })
     await typeAndDebounce(wrapper, 'home')
 
     await wrapper.find('.v3ip__items > div').trigger('click')
@@ -141,9 +160,58 @@ describe('Picker search + selection', () => {
 
   it('shows emptyText when the query has no results', async () => {
     searchIconsMock.mockResolvedValue([])
-    const wrapper = mount(Picker, { props: { modelValue: null, emptyText: 'No icons' } })
+    const wrapper = await mountAndWaitForDefaults({ modelValue: null, emptyText: 'No icons' })
     await typeAndDebounce(wrapper, 'zzz')
 
     expect(wrapper.find('.v3ip__empty').text()).toContain('No icons')
+  })
+
+  describe('default icons (before typing anything)', () => {
+    it('browses a random prefix when no iconLibrary is set', async () => {
+      const wrapper = await mountAndWaitForDefaults({ modelValue: null })
+
+      expect(pickRandomPrefixMock).toHaveBeenCalled()
+      expect(browseCollectionMock).toHaveBeenCalledWith('tabler')
+      expect(wrapper.find('.v3ip__items > div').exists()).toBe(true)
+    })
+
+    it('browses the given collection when iconLibrary is a single prefix', async () => {
+      await mountAndWaitForDefaults({ modelValue: null, iconLibrary: 'carbon' })
+
+      expect(pickRandomPrefixMock).not.toHaveBeenCalled()
+      expect(browseCollectionMock).toHaveBeenCalledWith('carbon')
+      expect(browseCollectionsMock).not.toHaveBeenCalled()
+    })
+
+    it('browses all given collections when iconLibrary has several prefixes', async () => {
+      await mountAndWaitForDefaults({ modelValue: null, iconLibrary: ['tabler', 'carbon'] })
+
+      expect(browseCollectionsMock).toHaveBeenCalledWith(['tabler', 'carbon'])
+      expect(browseCollectionMock).not.toHaveBeenCalled()
+    })
+
+    it('reloads the default set when clearing the search box', async () => {
+      const wrapper = await mountAndWaitForDefaults({ modelValue: null, iconLibrary: 'carbon' })
+      await typeAndDebounce(wrapper, 'home')
+      expect(searchIconsMock).toHaveBeenCalled()
+
+      browseCollectionMock.mockClear()
+      await typeAndDebounce(wrapper, '')
+
+      expect(browseCollectionMock).toHaveBeenCalledWith('carbon')
+    })
+
+    it('keeps the same random prefix across reloads instead of re-randomizing', async () => {
+      pickRandomPrefixMock.mockReturnValue('fluent')
+      const wrapper = await mountAndWaitForDefaults({ modelValue: null })
+      expect(browseCollectionMock).toHaveBeenLastCalledWith('fluent')
+
+      browseCollectionMock.mockClear()
+      await typeAndDebounce(wrapper, 'home')
+      await typeAndDebounce(wrapper, '')
+
+      expect(pickRandomPrefixMock).toHaveBeenCalledTimes(1)
+      expect(browseCollectionMock).toHaveBeenCalledWith('fluent')
+    })
   })
 })
