@@ -5,7 +5,7 @@
   import { RecycleScroller } from 'vue-virtual-scroller'
   import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
-  import { getIconFromCache } from '../cache'
+  import { getIconFromCache, setIconInCache } from '../cache'
   import type { Icon, IconLibrary, InputSize, Theme, ValueType } from '../types'
   import { isSVG, useIconsLoader } from '../utils'
   import ItemIcon from './Icon.vue'
@@ -117,6 +117,29 @@
     return props.valueType == 'name' ? icon.name : getIconFromCache(icon.name)
   }
 
+  /**
+   * Resolves the value to store for a selected icon, fetching and caching its
+   * SVG on demand if the grid cell's own background fetch hasn't resolved yet.
+   * This avoids silently selecting `undefined` when a user clicks an icon
+   * before its cache entry has been populated.
+   */
+  const resolveIconValue = async (icon: Icon): Promise<string | undefined> => {
+    if (props.valueType == 'name') return icon.name
+
+    const cached = getIconFromCache(icon.name)
+    if (cached) return cached
+
+    try {
+      const response = await fetch(icon.svgUrl)
+      const svg = await response.text()
+      setIconInCache(icon.name, svg)
+      return getIconFromCache(icon.name)
+    } catch (error) {
+      console.error(`Failed to load icon ${icon.name}`, error)
+      return undefined
+    }
+  }
+
   const getSvgCodeOrUrl = (value: string) => {
     return props.valueType == 'name' && !isSVG(value)
       ? iconsList.value?.find((icon) => icon.name == value)?.svgUrl || ''
@@ -138,39 +161,39 @@
     }
   }
 
-  const onSelected = (icon: Icon | undefined) => {
-    if (icon) {
-      if (props.multiple) {
-        if (props.modelValue && props.modelValue.length) {
-          const tempArray = props.modelValue as string[]
+  const onSelected = async (icon: Icon | undefined) => {
+    if (!icon) return
 
-          const index = (props.modelValue as string[]).findIndex(
-            (i: string) => i == getValue(icon)
-          )
-          if (index > -1) {
-            tempArray.splice(index, 1)
-          } else {
-            if (props.modelValue.length < props.multipleLimit) {
-              if (typeof getValue(icon) != 'undefined')
-                tempArray.push(getValue(icon) as string)
-            }
-          }
-          emits('update:modelValue', tempArray)
-          emits('change', tempArray, icon)
+    const iconValue = await resolveIconValue(icon)
+    if (typeof iconValue === 'undefined') return
+
+    if (props.multiple) {
+      if (props.modelValue && props.modelValue.length) {
+        const tempArray = [...(props.modelValue as string[])]
+
+        const index = tempArray.findIndex((i: string) => i == iconValue)
+        if (index > -1) {
+          tempArray.splice(index, 1)
         } else {
-          if (props.multipleLimit > 0) {
-            emits('update:modelValue', [getValue(icon)])
-            emits('change', [getValue(icon)], icon)
+          if (tempArray.length < props.multipleLimit) {
+            tempArray.push(iconValue)
           }
         }
+        emits('update:modelValue', tempArray)
+        emits('change', tempArray, icon)
       } else {
-        if (getValue(icon) == props.modelValue) {
-          if (props.clearable) emits('update:modelValue', null)
-        } else {
-          emits('update:modelValue', getValue(icon))
+        if (props.multipleLimit > 0) {
+          emits('update:modelValue', [iconValue])
+          emits('change', [iconValue], icon)
         }
-        emits('change', icon)
       }
+    } else {
+      if (iconValue == props.modelValue) {
+        if (props.clearable) emits('update:modelValue', null)
+      } else {
+        emits('update:modelValue', iconValue)
+      }
+      emits('change', icon)
     }
   }
 

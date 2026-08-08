@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
 import { Grid, type CellComponentProps } from 'react-window'
 import uniqBy from 'lodash.uniqby'
-import { getIconFromCache } from '../../cache'
+import { getIconFromCache, setIconInCache } from '../../cache'
 import type { Icon, IconLibrary, IconPickerProps } from '../../types'
 import { isSVG, useIconsLoader } from '../../utils'
 import { Icon as ItemIcon } from '../Icon'
@@ -133,6 +133,32 @@ const Picker: React.FC<IconPickerProps> = ({
     [valueType]
   )
 
+  /**
+   * Resolves the value to store for a selected icon, fetching and caching its
+   * SVG on demand if the grid cell's own background fetch hasn't resolved yet.
+   * This avoids silently selecting `undefined` when a user clicks an icon
+   * before its cache entry has been populated.
+   */
+  const resolveIconValue = useCallback(
+    async (icon: Icon): Promise<string | undefined> => {
+      if (valueType === 'name') return icon.name
+
+      const cached = getIconFromCache(icon.name)
+      if (cached) return cached
+
+      try {
+        const response = await fetch(icon.svgUrl)
+        const svg = await response.text()
+        setIconInCache(icon.name, svg)
+        return getIconFromCache(icon.name)
+      } catch (error) {
+        console.error(`Failed to load icon ${icon.name}`, error)
+        return undefined
+      }
+    },
+    [valueType]
+  )
+
   const getSvgCodeOrUrl = useCallback(
     (val: string) => {
       return valueType === 'name' && !isSVG(val)
@@ -158,39 +184,39 @@ const Picker: React.FC<IconPickerProps> = ({
   )
 
   const onSelected = useCallback(
-    (icon: Icon | undefined) => {
-      if (icon) {
-        if (multiple) {
-          if (value && Array.isArray(value) && value.length) {
-            const tempArray = [...value] as string[]
-            const index = value.findIndex((i: string) => i === getValue(icon))
+    async (icon: Icon | undefined) => {
+      if (!icon) return
 
-            if (index > -1) {
-              tempArray.splice(index, 1)
-            } else {
-              if (value.length < multipleLimit) {
-                const iconValue = getValue(icon)
-                if (typeof iconValue !== 'undefined') {
-                  tempArray.push(iconValue as string)
-                }
-              }
-            }
-            onChange(tempArray)
+      const iconValue = await resolveIconValue(icon)
+      if (typeof iconValue === 'undefined') return
+
+      if (multiple) {
+        if (value && Array.isArray(value) && value.length) {
+          const tempArray = [...value] as string[]
+          const index = tempArray.findIndex((i: string) => i === iconValue)
+
+          if (index > -1) {
+            tempArray.splice(index, 1)
           } else {
-            if (multipleLimit > 0) {
-              onChange([getValue(icon)] as string[])
+            if (tempArray.length < multipleLimit) {
+              tempArray.push(iconValue)
             }
           }
+          onChange(tempArray)
         } else {
-          if (getValue(icon) === value) {
-            if (clearable) onChange(null)
-          } else {
-            onChange(getValue(icon) as string)
+          if (multipleLimit > 0) {
+            onChange([iconValue])
           }
+        }
+      } else {
+        if (iconValue === value) {
+          if (clearable) onChange(null)
+        } else {
+          onChange(iconValue)
         }
       }
     },
-    [multiple, value, onChange, getValue, multipleLimit, clearable]
+    [multiple, value, onChange, resolveIconValue, multipleLimit, clearable]
   )
 
   const handleToggle = () => {
