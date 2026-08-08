@@ -366,6 +366,7 @@
     text-align: left;
     outline: none;
     min-width: 200px;
+    font-family: ui-sans-serif, -apple-system, 'Segoe UI', system-ui, sans-serif;
     font-size: 13.5px;
   }
 
