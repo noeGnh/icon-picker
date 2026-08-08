@@ -127,6 +127,12 @@
   align-items: center;
   color: var(--r3ip-muted);
   flex-shrink: 0;
+  /* Pushes itself (and stays pinned) to the far right regardless of what
+   * precedes it - the placeholder/multi-badges row already grow via
+   * flex:1, but a single selected-icon badge doesn't (it shouldn't
+   * stretch), so without this the chevron would sit right next to it
+   * instead of at the trigger's right edge. */
+  margin-left: auto;
   transition: transform 0.18s ease;
 }
 .r3ipChevron svg {

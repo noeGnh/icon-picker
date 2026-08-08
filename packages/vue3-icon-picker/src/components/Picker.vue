@@ -303,6 +303,7 @@
             :size="12"
             :color="props.theme == 'dark' ? '#f2f2f3' : '#111114'" />
           <button
+            v-if="props.clearable"
             type="button"
             class="v3ip__badge-remove"
             title="Remove"
@@ -489,6 +490,12 @@
     align-items: center;
     color: var(--v3ip-muted);
     flex-shrink: 0;
+    /* Pushes itself (and stays pinned) to the far right regardless of what
+     * precedes it - the placeholder/multi-badges row already grow via
+     * flex:1, but a single selected-icon badge doesn't (it shouldn't
+     * stretch), so without this the chevron would sit right next to it
+     * instead of at the trigger's right edge. */
+    margin-left: auto;
     transition: transform 0.18s ease;
   }
   .v3ip__chevron svg { width: 12px; height: 12px; }

@@ -253,6 +253,14 @@ describe('Picker search + selection', () => {
     expect(wrapper.emitted('change')?.[0]).toEqual([[]])
   })
 
+  it('single-select: only shows the badge remove button when clearable is true', async () => {
+    const wrapper = await mountAndWaitForDefaults({ modelValue: 'tabler:home', clearable: false })
+    expect(wrapper.find('.v3ip__badge-remove').exists()).toBe(false)
+
+    await wrapper.setProps({ clearable: true })
+    expect(wrapper.find('.v3ip__badge-remove').exists()).toBe(true)
+  })
+
   describe('default icons (before typing anything)', () => {
     it('browses a random prefix when no iconLibrary is set', async () => {
       await mountAndWaitForDefaults({ modelValue: null })

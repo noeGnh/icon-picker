@@ -272,6 +272,16 @@ describe('Picker search + selection', () => {
     expect(onChange).toHaveBeenCalledWith([])
   })
 
+  it('single-select: only shows the badge remove button when clearable is true', () => {
+    const { container, rerender } = render(
+      <Picker value="tabler:home" onChange={vi.fn()} clearable={false} />
+    )
+    expect(container.querySelector('button[title="Remove"]')).toBeNull()
+
+    rerender(<Picker value="tabler:home" onChange={vi.fn()} clearable />)
+    expect(container.querySelector('button[title="Remove"]')).not.toBeNull()
+  })
+
   describe('default icons (before typing anything)', () => {
     it('browses a random prefix when no iconLibrary is set', async () => {
       const { container } = render(<Picker value={null} onChange={vi.fn()} />)
