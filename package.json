@@ -5,6 +5,7 @@
   "author": "Noé Gnanih <noegnanih@gmail.com>",
   "license": "MIT",
   "private": true,
+  "packageManager": "pnpm@11.20.0",
   "workspaces": [
     "packages/*"
   ],
@@ -13,8 +14,8 @@
     "dev:react": "pnpm -F playground-react run dev",
     "docs:vue": "pnpm -F docs-vue run dev",
     "docs:react": "pnpm -F docs-react run dev",
-    "test:vue": "pnpm -F vue3-icon-picker run test",
-    "test:react": "pnpm -F @arkn/react-icon-picker run test",
+    "test:vue": "pnpm -F vue3-icon-picker run test-ci",
+    "test:react": "pnpm -F @arkn/react-icon-picker run test-ci",
     "test": "pnpm test:vue && pnpm test:react",
     "build": "pnpm build-plugin && pnpm build-playground && pnpm build-docs",
     "build-plugin:vue": "pnpm -F vue3-icon-picker run build",
