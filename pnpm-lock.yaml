@@ -205,9 +205,6 @@ importers:
 
   packages/react-icon-picker:
     dependencies:
-      '@arkn/icon-picker-core':
-        specifier: workspace:*
-        version: link:../core
       '@iconify/react':
         specifier: ^6.0.2
         version: 6.0.2(react@19.2.8)
@@ -215,6 +212,9 @@ importers:
         specifier: ^2.2.7
         version: 2.2.7(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
     devDependencies:
+      '@arkn/icon-picker-core':
+        specifier: workspace:*
+        version: link:../core
       '@testing-library/jest-dom':
         specifier: ^7.0.0
         version: 7.0.0(@testing-library/dom@10.4.1)
@@ -263,9 +263,6 @@ importers:
 
   packages/vue3-icon-picker:
     dependencies:
-      '@arkn/icon-picker-core':
-        specifier: workspace:*
-        version: link:../core
       '@iconify/vue':
         specifier: ^5.0.1
         version: 5.0.1(vue@3.5.40(typescript@6.0.3))
@@ -279,6 +276,9 @@ importers:
         specifier: 3.0.4
         version: 3.0.4(vue@3.5.40(typescript@6.0.3))
     devDependencies:
+      '@arkn/icon-picker-core':
+        specifier: workspace:*
+        version: link:../core
       '@types/node':
         specifier: 26.1.2
         version: 26.1.2

@@ -1,7 +1,7 @@
 {
   "name": "@arkn/react-icon-picker",
   "description": "React Icon Picker",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "private": false,
   "author": "Noé Gnanih <noegnanih@gmail.com>",
   "license": "MIT",
@@ -39,11 +39,11 @@
     "react-dom": "^19.2.6"
   },
   "dependencies": {
-    "@arkn/icon-picker-core": "workspace:*",
     "@iconify/react": "^6.0.2",
     "react-window": "^2.2.7"
   },
   "devDependencies": {
+    "@arkn/icon-picker-core": "workspace:*",
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.3",

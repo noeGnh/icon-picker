@@ -15,12 +15,10 @@
     resolveIconSvgValue,
     searchIcons,
     toggleIconSelection,
-    type IconResult,
-    type InputSize,
-    type Theme,
-    type ValueType,
   } from '@arkn/icon-picker-core'
   import ItemIcon from './Icon.vue'
+  // Local types, not core's - see the comment in ../types.ts for why.
+  import type { IconResult, InputSize, Theme, ValueType } from '../types'
 
   export interface Props {
     searchPlaceholder?: string
