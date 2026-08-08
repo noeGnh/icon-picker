@@ -5,7 +5,6 @@ import {
   ICONS_LIST_URL,
   ICONS_STORAGE_KEY,
 } from './constants'
-// import iconsRawList from './icons'
 import type { Icon } from './types'
 
 /**
@@ -80,8 +79,8 @@ export function useIconsLoader(): {
         iconsRawList = await response.json()
         localStorage.setItem(ICONS_STORAGE_KEY, JSON.stringify(iconsRawList))
       }
-    } catch (error: any) {
-      //
+    } catch (error) {
+      console.error('Failed to load icons list', error)
     }
 
     let i = 1

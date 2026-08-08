@@ -79,8 +79,8 @@ export function useIconsLoader(): {
         iconsRawList = await response.json()
         localStorage.setItem(ICONS_STORAGE_KEY, JSON.stringify(iconsRawList))
       }
-    } catch (error: any) {
-      //
+    } catch (error) {
+      console.error('Failed to load icons list', error)
     }
 
     const newIconsList: Icon[] = []
