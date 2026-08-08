@@ -26,6 +26,8 @@ This package searches icons live from [Iconify](https://iconify.design) - one AP
 
 Before you type anything, the picker shows a default set of icons instead of an empty state: the collection(s) given in `iconLibrary` if any, otherwise a random pick from a small curated set (Tabler, Carbon, Font Awesome, Fluent, Ionicons, Material Symbols, Ant Design).
 
+While a search or the default set is loading, a small status line shows "Loading…", then the result/icon count once it settles. The search box gets a clear (×) button once you've typed something, multi-select shows a clear-all button next to the selected badges, and pressing <kbd>Escape</kbd> while the dropdown is open closes it.
+
 ## Demo
 
 View the live demo [`here`](https://noegnh.github.io/vue3-icon-picker/)
@@ -79,8 +81,8 @@ You can then use the component in your template
 | multipleLimit          | number                          | Maximum number of selections when multiple selection is enabled                                                  | Infinity             | No       |
 | selectedItemsToDisplay | number                          | Number of selected icons to display when multiple selection is enabled                                           | 9                    | No       |
 | iconLibrary            | string / string[]               | Restrict search to these [Iconify collection prefixes](https://icon-sets.iconify.design) (e.g. "tabler", "carbon"). Searches every collection when omitted | undefined            | No       |
-| selectedIconBgColor    | string                          | Selected icon(s) background color                                                                                 | '#d3d3d3'            | No       |
-| selectedIconColor      | string                          | Selected icon(s) color                                                                                            | '#000000'            | No       |
+| selectedIconBgColor    | string                          | Selected icon(s) background color                                                                                 | '#e8edfc'            | No       |
+| selectedIconColor      | string                          | Selected icon(s) color                                                                                            | '#2b5fe0'            | No       |
 | clearable              | boolean                         | Make selected icon clearable when multiple is false                                                               | false                | No       |
 | disabled               | boolean                         | Disable component                                                                                                 | false                | No       |
 | displaySearch          | boolean                         | Display search input                                                                                              | true                 | No       |
