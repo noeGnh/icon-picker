@@ -36,8 +36,27 @@ const Picker: React.FC<IconPickerProps> = ({
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [open, setOpen] = useState<boolean>(false)
   const pickerRef = useRef<HTMLDivElement>(null)
-  const scrollerRef = useRef<HTMLDivElement>(null)
+  const scrollerObserverRef = useRef<ResizeObserver | null>(null)
   const [scrollerWidth, setScrollerWidth] = useState(0)
+
+  // Callback ref instead of a plain useRef: the scroller element only exists
+  // once the icon list has loaded (conditional render), which can happen
+  // after `open` last changed - an effect keyed on `open` could miss it and
+  // never measure the grid until the dropdown is closed and reopened.
+  const scrollerRef = useCallback((node: HTMLDivElement | null) => {
+    scrollerObserverRef.current?.disconnect()
+    scrollerObserverRef.current = null
+
+    if (node) {
+      const observer = new ResizeObserver((entries) => {
+        for (const entry of entries) {
+          setScrollerWidth(entry.contentRect.width)
+        }
+      })
+      observer.observe(node)
+      scrollerObserverRef.current = observer
+    }
+  }, [])
 
   const { iconsList, prepareData } = useIconsLoader()
 
@@ -60,20 +79,6 @@ const Picker: React.FC<IconPickerProps> = ({
 
     return () => {
       document.removeEventListener('mousedown', handleClickOutside)
-    }
-  }, [open])
-
-  // Measure scroller width
-  useEffect(() => {
-    if (scrollerRef.current) {
-      const observer = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-          setScrollerWidth(entry.contentRect.width)
-        }
-      })
-
-      observer.observe(scrollerRef.current)
-      return () => observer.disconnect()
     }
   }, [open])
 
