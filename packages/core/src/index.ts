@@ -1,0 +1,6 @@
+export type { IconResult, InputSize, Theme, ValueType } from './types'
+export { debounce, searchIcons } from './search'
+export type { SearchIconsOptions } from './search'
+export { isIconSelected, toggleIconSelection } from './selection'
+export type { ToggleSelectionOptions } from './selection'
+export { getSanitizedSvgFromCache, setSanitizedSvgInCache } from './sanitize-cache'

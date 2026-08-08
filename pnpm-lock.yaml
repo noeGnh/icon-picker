@@ -117,6 +117,19 @@ importers:
         specifier: ^3.3.8
         version: 3.3.8(typescript@6.0.3)
 
+  packages/core:
+    dependencies:
+      dompurify:
+        specifier: ^3.4.13
+        version: 3.4.13
+    devDependencies:
+      vite:
+        specifier: ^8.0.16
+        version: 8.0.16(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0)
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@types/node@26.1.2)(jsdom@30.0.1)(vite@8.0.16(@types/node@26.1.2)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.49.0)(tsx@4.23.1)(yaml@2.9.0))
+
   packages/docs-react:
     dependencies:
       '@arkn/react-icon-picker':

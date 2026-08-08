@@ -8,6 +8,10 @@
     {
       "path": "./tsconfig.config.json"
     },
+    // Shared core
+    {
+      "path": "./packages/core/tsconfig.json"
+    },
     // Vue plugin
     {
       "path": "./packages/vue3-icon-picker/tsconfig.app.json"

@@ -1,0 +1,23 @@
+{
+  "name": "@arkn/icon-picker-core",
+  "description": "Framework-agnostic Iconify search, selection and sanitization logic shared by vue3-icon-picker and react-icon-picker",
+  "version": "0.1.0",
+  "private": true,
+  "author": "Noé Gnanih <noegnanih@gmail.com>",
+  "license": "MIT",
+  "type": "module",
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "lint": "eslint src",
+    "test": "vitest",
+    "test-ci": "vitest --run"
+  },
+  "dependencies": {
+    "dompurify": "^3.4.13"
+  },
+  "devDependencies": {
+    "vite": "^8.0.16",
+    "vitest": "^4.1.10"
+  }
+}
