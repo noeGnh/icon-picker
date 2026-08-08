@@ -1,10 +1,18 @@
 /// <reference types="vitest"/>
 import vue from '@vitejs/plugin-vue'
-import AutoImport from 'unplugin-auto-import/vite'
+import { readFileSync } from 'fs'
 import { fileURLToPath } from 'url'
+import AutoImport from 'unplugin-auto-import/vite'
 import { defineConfig, type UserConfig } from 'vite'
 
+const pkg = JSON.parse(
+  readFileSync(fileURLToPath(new URL('./package.json', import.meta.url)), 'utf-8')
+)
+
 export default defineConfig({
+  define: {
+    __PKG_VERSION__: JSON.stringify(pkg.version),
+  },
   plugins: [
     vue(),
     AutoImport({

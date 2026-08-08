@@ -1,5 +1,6 @@
 /// <reference types="vitest"/>
 import react from '@vitejs/plugin-react'
+import { readFileSync } from 'fs'
 import { dirname, resolve } from 'path'
 import { fileURLToPath } from 'url'
 import { defineConfig, type UserConfig } from 'vite'
@@ -7,8 +8,13 @@ import { defineConfig, type UserConfig } from 'vite'
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
+const pkg = JSON.parse(readFileSync(resolve(__dirname, 'package.json'), 'utf-8'))
+
 // https://vite.dev/config/
 export default defineConfig({
+  define: {
+    __PKG_VERSION__: JSON.stringify(pkg.version),
+  },
   plugins: [react()],
   build: {
     lib: {
