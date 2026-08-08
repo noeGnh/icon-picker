@@ -259,9 +259,11 @@ const Picker: React.FC<IconPickerProps> = ({
   }
 
   // Virtual grid settings - column count adapts to the picker's own width
-  // instead of a fixed 4, so narrow (sidebar) and wide embeddings both keep
-  // a comfortable cell size.
-  const columnCount = scrollerWidth ? Math.max(3, Math.min(8, Math.floor(scrollerWidth / 34))) : 4
+  // instead of a fixed value, so narrow (sidebar) and wide embeddings both
+  // keep a comfortable cell size - capped at 6 to match the Compact Dock
+  // direction's density (a higher cap made typical widths pack in 8
+  // columns, noticeably busier than the approved design).
+  const columnCount = scrollerWidth ? Math.max(3, Math.min(6, Math.floor(scrollerWidth / 50))) : 6
   const columnWidth = scrollerWidth / columnCount || 50
   const rowHeight = 34
   const rowCount = Math.ceil(filteredIcons.length / columnCount)

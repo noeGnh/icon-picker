@@ -225,11 +225,14 @@
   const scroller = useTemplateRef<HTMLDivElement>('scroller')
   const { width } = useElementSize(scroller)
 
-  /** Column count adapts to the picker's own width instead of a fixed 4, so
-   * narrow (sidebar) and wide embeddings both keep a comfortable cell size. */
+  /** Column count adapts to the picker's own width instead of a fixed value,
+   * so narrow (sidebar) and wide embeddings both keep a comfortable cell
+   * size - capped at 6 to match the Compact Dock direction's density (a
+   * higher cap made typical widths pack in 8 columns, noticeably busier
+   * than the approved design). */
   const columnCount = computed(() => {
-    if (!width.value) return 4
-    return Math.max(3, Math.min(8, Math.floor(width.value / 34)))
+    if (!width.value) return 6
+    return Math.max(3, Math.min(6, Math.floor(width.value / 50)))
   })
   const itemSecondarySize = computed(() =>
     columnCount.value ? width.value / columnCount.value : 0
