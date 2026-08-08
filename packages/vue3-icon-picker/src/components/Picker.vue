@@ -212,8 +212,7 @@
 <template>
   <div
     ref="picker"
-    :class="`v3ip__custom-select v3ip__${props.inputSize} v3ip__${props.theme}`"
-    @blur="open = false">
+    :class="`v3ip__custom-select v3ip__${props.inputSize} v3ip__${props.theme}`">
     <div
       class="v3ip__selected"
       :class="{ open: open, disabled: props.disabled }"
