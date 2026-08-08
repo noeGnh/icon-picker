@@ -30,6 +30,8 @@ pnpm add @arkn/react-icon-picker
 
 This package searches icons live from [Iconify](https://iconify.design) - one API, 150+ icon sets, 200,000+ icons (including Font Awesome, Material Symbols, Tabler, Carbon, Fluent, Ant Design, Ionicons and many more). Browse the full catalog at [icon-sets.iconify.design](https://icon-sets.iconify.design). Icons are loaded on demand from Iconify's public API (or your own self-hosted instance, see `iconLibrary` below) - nothing is bundled into this package.
 
+Before you type anything, the picker shows a default set of icons instead of an empty state: the collection(s) given in `iconLibrary` if any, otherwise a random pick from a small curated set (Tabler, Carbon, Font Awesome, Fluent, Ionicons, Material Symbols, Ant Design).
+
 ## Usage
 
 Import the component and its styles:
