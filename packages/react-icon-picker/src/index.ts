@@ -4,7 +4,7 @@ export { Icon } from './components/Icon'
 export type {
   IconPickerProps,
   IconProps,
-  IconLibrary,
+  IconResult,
   ValueType,
   InputSize,
   Theme,

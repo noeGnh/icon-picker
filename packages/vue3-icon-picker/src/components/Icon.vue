@@ -1,11 +1,15 @@
 <script setup lang="ts">
-  import DOMPurify from 'dompurify'
-
-  import { getIconFromCache, setIconInCache } from '../cache'
-  import { isSVG, isURL, useIconsLoader } from '../utils'
+  import {
+    getSanitizedSvgFromCache,
+    isSVG,
+    setSanitizedSvgInCache,
+  } from '@arkn/icon-picker-core'
+  import { Icon as IconifyIcon } from '@iconify/vue'
+  import { computed } from 'vue'
 
   export interface Props {
-    data: string
+    /** An Iconify identifier ("prefix:name", e.g. "tabler:home") or a raw SVG string. */
+    data: string | null
     color?: string
     size?: number | string
   }
@@ -15,92 +19,26 @@
     size: 24,
   })
 
-  const { prepareData } = useIconsLoader()
-
   const color = computed(() => props.color)
   const size = computed(() =>
-    typeof props.size == 'number' ? props.size + 'px' : props.size || 'unset'
+    typeof props.size === 'number' ? props.size + 'px' : props.size || 'unset'
   )
 
-  const svgCode = ref()
-  const isLoading = ref(false)
+  const isRawSvg = computed(() => !!props.data && isSVG(props.data))
 
-  var abortController: AbortController | null = null
-
-  const fetchData = async (url: string) => {
-    if (abortController) {
-      abortController.abort()
-    }
-
-    const filename = url.split('/').pop()
-    const name = filename?.split('.').slice(0, -1).join('.') || 'icon'
-
-    const cached = getIconFromCache(name)
-    if (cached) {
-      svgCode.value = cached
-      return
-    }
-
-    if (isLoading.value || !url) return
-
-    isLoading.value = true
-    abortController = new AbortController()
-
-    try {
-      const response = await fetch(url, {
-        signal: abortController.signal,
-      })
-
-      const svg = await response.text()
-
-      setIconInCache(name, svg)
-      svgCode.value = svg
-    } catch (error: any) {
-      if (error.name !== 'AbortError') {
-        console.error(`Failed to load icon ${name}`, error)
-        svgCode.value = `<svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#eee"/></svg>`
-      }
-    } finally {
-      isLoading.value = false
-      abortController = null
-    }
-  }
-
-  onUnmounted(() => {
-    if (abortController) {
-      abortController.abort()
-    }
+  const sanitizedSvg = computed(() => {
+    if (!props.data || !isRawSvg.value) return ''
+    return getSanitizedSvgFromCache(props.data) ?? setSanitizedSvgInCache(props.data, props.data)
   })
-
-  watch(
-    () => props.data,
-    async (val) => {
-      if (isURL(val)) {
-        fetchData(val)
-      } else if (isSVG(val)) {
-        svgCode.value = DOMPurify.sanitize(val, {
-          USE_PROFILES: { svg: true, svgFilters: true },
-        })
-      } else {
-        const iconsList = await prepareData()
-
-        const url = iconsList?.find((icon) => icon.name == val)?.svgUrl || ''
-
-        fetchData(url)
-      }
-    },
-    {
-      immediate: true,
-    }
-  )
 </script>
 
 <template>
-  <i v-html="svgCode"></i>
+  <i v-if="isRawSvg" v-html="sanitizedSvg"></i>
+  <IconifyIcon v-else-if="data" :icon="data" :color="props.color" :width="props.size" :height="props.size" />
 </template>
 
 <style scoped>
-  ::v-deep(svg) {
+  i :deep(svg) {
     display: block;
     width: v-bind(size);
     height: v-bind(size);

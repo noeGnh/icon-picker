@@ -1,9 +1,15 @@
-import React, { useState, useEffect, useRef, useMemo, useCallback } from 'react'
+import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { Grid, type CellComponentProps } from 'react-window'
-import uniqBy from 'lodash.uniqby'
-import { getIconFromCache, setIconInCache } from '../../cache'
-import type { Icon, IconLibrary, IconPickerProps } from '../../types'
-import { isSVG, useIconsLoader } from '../../utils'
+import { buildIcon, loadIcon } from '@iconify/react'
+import {
+  getSanitizedSvgFromCache,
+  isIconSelected as coreIsIconSelected,
+  resolveIconSvgValue,
+  searchIcons,
+  toggleIconSelection,
+  type IconResult,
+} from '@arkn/icon-picker-core'
+import type { IconPickerProps } from '../../types'
 import { Icon as ItemIcon } from '../Icon'
 import styles from './Picker.module.css'
 
@@ -13,7 +19,7 @@ const Picker: React.FC<IconPickerProps> = ({
   searchPlaceholder = 'Search',
   placeholder,
   multiple = false,
-  iconLibrary = 'fa',
+  iconLibrary,
   selectedIconBgColor = '#d3d3d3',
   selectedIconColor = '#000000',
   displaySearch = true,
@@ -21,11 +27,9 @@ const Picker: React.FC<IconPickerProps> = ({
   disabled = false,
   selectedItemsToDisplay = 9,
   clearable = false,
-  valueType = 'svg',
+  valueType = 'name',
   includeIcons = [],
   excludeIcons = [],
-  includeSearch,
-  excludeSearch,
   emptyText = 'Nothing to show',
   inputSize = 'medium',
   theme = 'light',
@@ -35,12 +39,13 @@ const Picker: React.FC<IconPickerProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState<string>('')
   const [open, setOpen] = useState<boolean>(false)
+  const [filteredIcons, setFilteredIcons] = useState<IconResult[]>([])
   const pickerRef = useRef<HTMLDivElement>(null)
   const scrollerObserverRef = useRef<ResizeObserver | null>(null)
   const [scrollerWidth, setScrollerWidth] = useState(0)
 
   // Callback ref instead of a plain useRef: the scroller element only exists
-  // once the icon list has loaded (conditional render), which can happen
+  // once there are results to render (conditional render), which can happen
   // after `open` last changed - an effect keyed on `open` could miss it and
   // never measure the grid until the dropdown is closed and reopened.
   const scrollerRef = useCallback((node: HTMLDivElement | null) => {
@@ -56,13 +61,6 @@ const Picker: React.FC<IconPickerProps> = ({
       observer.observe(node)
       scrollerObserverRef.current = observer
     }
-  }, [])
-
-  const { iconsList, prepareData } = useIconsLoader()
-
-  // Load icons on mount
-  useEffect(() => {
-    prepareData()
   }, [])
 
   // Click outside handler
@@ -82,146 +80,90 @@ const Picker: React.FC<IconPickerProps> = ({
     }
   }, [open])
 
-  const filteredIcons = useMemo(() => {
-    return uniqBy(
-      uniqBy(
-        iconsList.filter((icon) => {
-          const belongsToIconLibs =
-            (typeof iconLibrary === 'string' && icon.library === iconLibrary) ||
-            (Array.isArray(iconLibrary) &&
-              iconLibrary.includes(icon.library as IconLibrary)) ||
-            iconLibrary === 'all'
+  const normalizedPrefixes = iconLibrary
+    ? Array.isArray(iconLibrary)
+      ? iconLibrary
+      : [iconLibrary]
+    : undefined
 
-          const belongsToUserSearch =
-            !searchQuery ||
-            icon.name?.toLowerCase().includes(searchQuery.toLowerCase())
+  // Debounce by cancelling the previous scheduled search in the effect
+  // cleanup, rather than wrapping in a stateful debounce() helper - refs
+  // shouldn't be mutated during render, and this reads the latest
+  // includeIcons/excludeIcons via the closure instead.
+  useEffect(() => {
+    const timeoutId = setTimeout(async () => {
+      if (!searchQuery.trim()) {
+        setFilteredIcons([])
+        return
+      }
 
-          const belongsToIncludes =
-            !includeIcons || !includeIcons.length || includeIcons.includes(icon.name)
+      const results = await searchIcons(searchQuery, { prefixes: normalizedPrefixes })
 
-          const belongsToIncludeSearch =
-            !includeSearch || icon.name?.toLowerCase().includes(includeSearch.toLowerCase())
+      setFilteredIcons(
+        results.filter((icon) => {
+          const belongsToIncludes = !includeIcons?.length || includeIcons.includes(icon.name)
+          const doesNotBelongToExcludes =
+            !excludeIcons?.length || !excludeIcons.includes(icon.name)
+          return belongsToIncludes && doesNotBelongToExcludes
+        })
+      )
+    }, 300)
 
-          const doesNotBelongsToExcludes =
-            !excludeIcons || !excludeIcons.length || !excludeIcons.includes(icon.name)
+    return () => clearTimeout(timeoutId)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchQuery, JSON.stringify(normalizedPrefixes), JSON.stringify(includeIcons), JSON.stringify(excludeIcons)])
 
-          const doesNotBelongsToExcludeSearch =
-            !excludeSearch || !icon.name?.toLowerCase().includes(excludeSearch.toLowerCase())
-
-          return (
-            belongsToIconLibs &&
-            belongsToUserSearch &&
-            belongsToIncludes &&
-            belongsToIncludeSearch &&
-            doesNotBelongsToExcludes &&
-            doesNotBelongsToExcludeSearch
-          )
-        }),
-        'svgUrl'
-      ),
-      'name'
-    )
-  }, [
-    iconsList,
-    iconLibrary,
-    searchQuery,
-    includeIcons,
-    excludeIcons,
-    includeSearch,
-    excludeSearch,
-  ])
-
-  const getValue = useCallback(
-    (icon: Icon) => {
-      return valueType === 'name' ? icon.name : getIconFromCache(icon.name)
-    },
-    [valueType]
-  )
-
-  /**
-   * Resolves the value to store for a selected icon, fetching and caching its
-   * SVG on demand if the grid cell's own background fetch hasn't resolved yet.
-   * This avoids silently selecting `undefined` when a user clicks an icon
-   * before its cache entry has been populated.
-   */
-  const resolveIconValue = useCallback(
-    async (icon: Icon): Promise<string | undefined> => {
+  /** Resolves the value to store for a freshly selected icon (async for valueType: 'svg'). */
+  const getResolvedValue = useCallback(
+    async (icon: IconResult): Promise<string | undefined> => {
       if (valueType === 'name') return icon.name
-
-      const cached = getIconFromCache(icon.name)
-      if (cached) return cached
-
-      try {
-        const response = await fetch(icon.svgUrl)
-        const svg = await response.text()
-        setIconInCache(icon.name, svg)
-        return getIconFromCache(icon.name)
-      } catch (error) {
-        console.error(`Failed to load icon ${icon.name}`, error)
-        return undefined
-      }
+      return resolveIconSvgValue(icon.name, { loadIcon, buildIcon })
     },
     [valueType]
   )
 
-  const getSvgCodeOrUrl = useCallback(
-    (val: string) => {
-      return valueType === 'name' && !isSVG(val)
-        ? iconsList?.find((icon) => icon.name === val)?.svgUrl || ''
-        : val
+  const applyToggle = useCallback(
+    (candidateValue: string) => {
+      const next = toggleIconSelection(value, candidateValue, {
+        multiple,
+        multipleLimit,
+        clearable,
+      })
+      if (typeof next === 'undefined') return
+      onChange(next)
     },
-    [valueType, iconsList]
+    [value, multiple, multipleLimit, clearable, onChange]
   )
 
-  const isIconSelected = useCallback(
-    (icon: Icon) => {
-      if (multiple) {
-        if (value && Array.isArray(value) && value.length) {
-          return value.findIndex((i: string) => i === getValue(icon)) > -1
-        }
-        return false
-      } else {
-        if (!value) return false
-        return value === getValue(icon)
-      }
+  const onGridItemSelected = useCallback(
+    async (icon: IconResult) => {
+      const resolved = await getResolvedValue(icon)
+      if (typeof resolved === 'undefined') return
+      applyToggle(resolved)
     },
-    [multiple, value, getValue]
+    [getResolvedValue, applyToggle]
   )
 
-  const onSelected = useCallback(
-    async (icon: Icon | undefined) => {
-      if (!icon) return
-
-      const iconValue = await resolveIconValue(icon)
-      if (typeof iconValue === 'undefined') return
-
-      if (multiple) {
-        if (value && Array.isArray(value) && value.length) {
-          const tempArray = [...value] as string[]
-          const index = tempArray.findIndex((i: string) => i === iconValue)
-
-          if (index > -1) {
-            tempArray.splice(index, 1)
-          } else {
-            if (tempArray.length < multipleLimit) {
-              tempArray.push(iconValue)
-            }
-          }
-          onChange(tempArray)
-        } else {
-          if (multipleLimit > 0) {
-            onChange([iconValue])
-          }
-        }
-      } else {
-        if (iconValue === value) {
-          if (clearable) onChange(null)
-        } else {
-          onChange(iconValue)
-        }
-      }
+  /** Removing an already-selected value never needs re-resolving - it's already known. */
+  const onBadgeRemove = useCallback(
+    (badgeValue: string) => {
+      applyToggle(badgeValue)
     },
-    [multiple, value, onChange, resolveIconValue, multipleLimit, clearable]
+    [applyToggle]
+  )
+
+  const isGridIconSelected = useCallback(
+    (icon: IconResult): boolean => {
+      if (valueType === 'name') {
+        return coreIsIconSelected(value, icon.name, multiple)
+      }
+      // 'svg' mode is best-effort: only icons already resolved once (cached)
+      // can be matched against an opaque stored SVG string.
+      const cached = getSanitizedSvgFromCache(icon.name)
+      if (!cached) return false
+      return coreIsIconSelected(value, cached, multiple)
+    },
+    [valueType, value, multiple]
   )
 
   const handleToggle = () => {
@@ -246,13 +188,13 @@ const Picker: React.FC<IconPickerProps> = ({
       <div
         {...ariaAttributes}
         style={style}
-        className={`${styles.r3ipGridItem} ${isIconSelected(item) ? styles.active : ''}`}
-        onClick={() => onSelected(item)}>
+        className={`${styles.r3ipGridItem} ${isGridIconSelected(item) ? styles.active : ''}`}
+        onClick={() => onGridItemSelected(item)}>
         <ItemIcon
-          data={item.svgUrl}
+          data={item.name}
           size={24}
           color={
-            isIconSelected(item)
+            isGridIconSelected(item)
               ? selectedIconColor
               : theme === 'dark'
                 ? '#e5e7eb'
@@ -286,14 +228,12 @@ const Picker: React.FC<IconPickerProps> = ({
                       {i < selectedItemsToDisplay && (
                         <div className={styles.item}>
                           <ItemIcon
-                            data={getSvgCodeOrUrl(val)}
+                            data={val}
                             size={20}
                             color={theme === 'dark' ? '#e5e7eb' : '#222'}
                             onClick={(e: React.MouseEvent) => {
                               e.stopPropagation()
-                              onSelected(
-                                iconsList?.find((icon: Icon) => getValue(icon) === val)
-                              )
+                              onBadgeRemove(val)
                             }}
                           />
                         </div>
@@ -308,12 +248,12 @@ const Picker: React.FC<IconPickerProps> = ({
               </div>
             ) : (
               <ItemIcon
-                data={getSvgCodeOrUrl(value as string)}
+                data={value as string}
                 size={20}
                 color={theme === 'dark' ? '#e5e7eb' : '#222'}
                 onClick={(e: React.MouseEvent) => {
                   e.stopPropagation()
-                  onSelected(iconsList?.find((icon: Icon) => getValue(icon) === value))
+                  onBadgeRemove(value as string)
                 }}
               />
             )}

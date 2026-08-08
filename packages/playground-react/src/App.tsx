@@ -1,11 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react'
-import {IconPicker, type IconLibrary} from '@arkn/react-icon-picker'
+import { IconPicker } from '@arkn/react-icon-picker'
 import './App.css'
 
-const ICON_LIBRARIES: IconLibrary[] = [
-  'antd', 'carbon', 'fa', 'fluent',
-  'ionicons4', 'ionicons5', 'material', 'tabler'
+// Iconify collection prefixes - see https://icon-sets.iconify.design for the full list.
+const ICON_LIBRARIES = [
+  'ant-design', 'carbon', 'fa', 'fluent',
+  'ion', 'material-symbols', 'tabler'
 ]
 
 type InputSize = 'small' | 'medium' | 'large'
@@ -16,13 +17,13 @@ const App: React.FC = () => {
   const [darkMode, setDarkMode] = useState<boolean>(false)
   const [clearable, setClearable] = useState<boolean>(false)
   const [multipleSelection, setMultipleSelection] = useState<boolean>(false)
-  const [selectedLibraries, setSelectedLibraries] = useState<IconLibrary[]>(['fa'])
+  const [selectedLibraries, setSelectedLibraries] = useState<string[]>(['tabler'])
   const [inputSize, setInputSize] = useState<InputSize>('medium')
 
   // Logique métier
-  const isSelected = (lib: IconLibrary) => selectedLibraries.includes(lib)
+  const isSelected = (lib: string) => selectedLibraries.includes(lib)
 
-  const toggleSelectedLibraries = (lib: IconLibrary) => {
+  const toggleSelectedLibraries = (lib: string) => {
     setSelectedLibraries(prev =>
       prev.includes(lib)
         ? prev.filter(l => l !== lib)
@@ -97,7 +98,6 @@ const App: React.FC = () => {
       <IconPicker
         value={selection}
         onChange={setSelection}
-        valueType="svg"
         iconLibrary={selectedLibraries}
         multiple={multipleSelection}
         clearable={clearable}

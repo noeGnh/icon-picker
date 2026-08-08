@@ -1,25 +1,5 @@
-export type IconLibrary =
-  | 'antd'
-  | 'carbon'
-  | 'fa'
-  | 'fluent'
-  | 'ionicons4'
-  | 'ionicons5'
-  | 'material'
-  | 'tabler'
-
-export type ValueType = 'name' | 'svg'
-
-export type InputSize = 'small' | 'medium' | 'large'
-
-export type Theme = 'dark' | 'light'
-
-export interface Icon {
-  id: number
-  name: string
-  svgUrl: string
-  library: string
-}
+export type { IconResult, InputSize, Theme, ValueType } from '@arkn/icon-picker-core'
+import type { InputSize, Theme, ValueType } from '@arkn/icon-picker-core'
 
 export type IconPickerProps = {
   // Controlled component pattern
@@ -30,7 +10,8 @@ export type IconPickerProps = {
   searchPlaceholder?: string
   placeholder?: string
   multiple?: boolean
-  iconLibrary?: IconLibrary | 'all' | IconLibrary[]
+  /** Restrict search to these Iconify collection prefixes (e.g. "tabler", "carbon"). Searches all collections when omitted. */
+  iconLibrary?: string | string[]
   selectedIconBgColor?: string
   selectedIconColor?: string
   displaySearch?: boolean
@@ -41,8 +22,6 @@ export type IconPickerProps = {
   valueType?: ValueType
   includeIcons?: string[]
   excludeIcons?: string[]
-  includeSearch?: string
-  excludeSearch?: string
   emptyText?: string
   inputSize?: InputSize
   theme?: Theme
@@ -51,6 +30,7 @@ export type IconPickerProps = {
 } & React.HTMLAttributes<HTMLElement>
 
 export type IconProps = {
+  /** An Iconify identifier ("prefix:name", e.g. "tabler:home") or a raw SVG string. */
   data: string | null
   color?: string
   size?: number | string

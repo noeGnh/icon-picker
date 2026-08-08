@@ -1,13 +1,22 @@
 <script setup lang="ts">
   import { onClickOutside, useElementSize } from '@vueuse/core'
-  import uniqBy from 'lodash.uniqby'
+  import { buildIcon, loadIcon } from '@iconify/vue'
   import { useTemplateRef } from 'vue'
   import { RecycleScroller } from 'vue-virtual-scroller'
   import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 
-  import { getIconFromCache, setIconInCache } from '../cache'
-  import type { Icon, IconLibrary, InputSize, Theme, ValueType } from '../types'
-  import { isSVG, useIconsLoader } from '../utils'
+  import {
+    debounce,
+    getSanitizedSvgFromCache,
+    isIconSelected as coreIsIconSelected,
+    resolveIconSvgValue,
+    searchIcons,
+    toggleIconSelection,
+    type IconResult,
+    type InputSize,
+    type Theme,
+    type ValueType,
+  } from '@arkn/icon-picker-core'
   import ItemIcon from './Icon.vue'
 
   export interface Props {
@@ -15,7 +24,8 @@
     placeholder?: string
     modelValue: string | string[] | null
     multiple?: boolean
-    iconLibrary?: IconLibrary | 'all' | IconLibrary[]
+    /** Restrict search to these Iconify collection prefixes (e.g. "tabler", "carbon"). Searches all collections when omitted. */
+    iconLibrary?: string | string[]
     selectedIconBgColor?: string
     selectedIconColor?: string
     displaySearch?: boolean
@@ -26,8 +36,6 @@
     valueType?: ValueType
     includeIcons?: string[]
     excludeIcons?: string[]
-    includeSearch?: string
-    excludeSearch?: string
     emptyText?: string
     inputSize?: InputSize
     theme?: Theme
@@ -37,7 +45,7 @@
     searchPlaceholder: 'Search',
     placeholder: undefined,
     multiple: false,
-    iconLibrary: 'fa',
+    iconLibrary: undefined,
     selectedIconBgColor: '#d3d3d3',
     selectedIconColor: '#000000',
     displaySearch: true,
@@ -45,11 +53,9 @@
     disabled: false,
     selectedItemsToDisplay: 9,
     clearable: false,
-    valueType: 'svg',
+    valueType: 'name',
     includeIcons: () => [],
     excludeIcons: () => [],
-    includeSearch: undefined,
-    excludeSearch: undefined,
     emptyText: 'Nothing to show',
     inputSize: 'medium',
     theme: 'light',
@@ -60,141 +66,72 @@
   const selectedIconBgColor = ref(props.selectedIconBgColor)
   const searchQuery = ref<string>('')
   const open = ref<boolean>(false)
+  const filteredIcons = ref<IconResult[]>([])
 
-  const { iconsList, prepareData } = useIconsLoader()
-
-  prepareData()
-
-  const filteredIcons = computed(() => {
-    return uniqBy(
-      uniqBy(
-        iconsList.value.filter((icon) => {
-          const belongsToIconLibs =
-            (typeof props.iconLibrary === 'string' &&
-              icon.library == props.iconLibrary) ||
-            (Array.isArray(props.iconLibrary) &&
-              props.iconLibrary.includes(icon.library as IconLibrary)) ||
-            props.iconLibrary == 'all'
-
-          const belongsToUserSearch =
-            !searchQuery.value ||
-            icon.name?.toLocaleLowerCase().includes(searchQuery.value)
-
-          const belongsToIncludes =
-            !props.includeIcons ||
-            !props.includeIcons.length ||
-            props.includeIcons.includes(icon.name)
-
-          const belongsToIncludeSearch =
-            !props.includeSearch ||
-            icon.name?.toLocaleLowerCase().includes(props.includeSearch)
-
-          const doesNotBelongsToExcludes =
-            !props.excludeIcons ||
-            !props.excludeIcons.length ||
-            !props.excludeIcons.includes(icon.name)
-
-          const doesNotBelongsToExcludeSearch =
-            !props.excludeSearch ||
-            !icon.name?.toLocaleLowerCase().includes(props.excludeSearch)
-
-          return (
-            belongsToIconLibs &&
-            belongsToUserSearch &&
-            belongsToIncludes &&
-            belongsToIncludeSearch &&
-            doesNotBelongsToExcludes &&
-            doesNotBelongsToExcludeSearch
-          )
-        }),
-        'svgUrl'
-      ),
-      'name'
-    )
+  const normalizedPrefixes = computed(() => {
+    if (!props.iconLibrary) return undefined
+    return Array.isArray(props.iconLibrary) ? props.iconLibrary : [props.iconLibrary]
   })
 
-  const getValue = (icon: Icon) => {
-    return props.valueType == 'name' ? icon.name : getIconFromCache(icon.name)
+  const applyLocalFilters = (results: IconResult[]) => {
+    return results.filter((icon) => {
+      const belongsToIncludes =
+        !props.includeIcons || !props.includeIcons.length || props.includeIcons.includes(icon.name)
+      const doesNotBelongToExcludes =
+        !props.excludeIcons || !props.excludeIcons.length || !props.excludeIcons.includes(icon.name)
+      return belongsToIncludes && doesNotBelongToExcludes
+    })
   }
 
-  /**
-   * Resolves the value to store for a selected icon, fetching and caching its
-   * SVG on demand if the grid cell's own background fetch hasn't resolved yet.
-   * This avoids silently selecting `undefined` when a user clicks an icon
-   * before its cache entry has been populated.
-   */
-  const resolveIconValue = async (icon: Icon): Promise<string | undefined> => {
-    if (props.valueType == 'name') return icon.name
-
-    const cached = getIconFromCache(icon.name)
-    if (cached) return cached
-
-    try {
-      const response = await fetch(icon.svgUrl)
-      const svg = await response.text()
-      setIconInCache(icon.name, svg)
-      return getIconFromCache(icon.name)
-    } catch (error) {
-      console.error(`Failed to load icon ${icon.name}`, error)
-      return undefined
+  const runSearch = async (query: string) => {
+    if (!query.trim()) {
+      filteredIcons.value = []
+      return
     }
+    const results = await searchIcons(query, { prefixes: normalizedPrefixes.value })
+    filteredIcons.value = applyLocalFilters(results)
   }
 
-  const getSvgCodeOrUrl = (value: string) => {
-    return props.valueType == 'name' && !isSVG(value)
-      ? iconsList.value?.find((icon) => icon.name == value)?.svgUrl || ''
-      : value
+  const debouncedSearch = debounce(runSearch, 300)
+  watch(searchQuery, (query) => debouncedSearch(query))
+
+  /** Resolves the value to store for a freshly selected icon (async for valueType: 'svg'). */
+  const getResolvedValue = async (icon: IconResult): Promise<string | undefined> => {
+    if (props.valueType === 'name') return icon.name
+    return resolveIconSvgValue(icon.name, { loadIcon, buildIcon })
   }
 
-  const isIconSelected = (icon: Icon) => {
-    if (props.multiple) {
-      if (props.modelValue && props.modelValue.length)
-        return (
-          (props.modelValue as string[]).findIndex(
-            (i: string) => i == getValue(icon)
-          ) > -1
-        )
-      return false
-    } else {
-      if (!props.modelValue) return false
-      return props.modelValue == getValue(icon)
+  const applyToggle = (candidateValue: string) => {
+    const next = toggleIconSelection(props.modelValue, candidateValue, {
+      multiple: props.multiple,
+      multipleLimit: props.multipleLimit,
+      clearable: props.clearable,
+    })
+    if (typeof next === 'undefined') return
+    emits('update:modelValue', next)
+    emits('change', next)
+  }
+
+  const onGridItemSelected = async (icon: IconResult) => {
+    const value = await getResolvedValue(icon)
+    if (typeof value === 'undefined') return
+    applyToggle(value)
+  }
+
+  /** Removing an already-selected value never needs re-resolving - it's already known. */
+  const onBadgeRemove = (value: string) => {
+    applyToggle(value)
+  }
+
+  const isGridIconSelected = (icon: IconResult): boolean => {
+    if (props.valueType === 'name') {
+      return coreIsIconSelected(props.modelValue, icon.name, props.multiple)
     }
-  }
-
-  const onSelected = async (icon: Icon | undefined) => {
-    if (!icon) return
-
-    const iconValue = await resolveIconValue(icon)
-    if (typeof iconValue === 'undefined') return
-
-    if (props.multiple) {
-      if (props.modelValue && props.modelValue.length) {
-        const tempArray = [...(props.modelValue as string[])]
-
-        const index = tempArray.findIndex((i: string) => i == iconValue)
-        if (index > -1) {
-          tempArray.splice(index, 1)
-        } else {
-          if (tempArray.length < props.multipleLimit) {
-            tempArray.push(iconValue)
-          }
-        }
-        emits('update:modelValue', tempArray)
-        emits('change', tempArray, icon)
-      } else {
-        if (props.multipleLimit > 0) {
-          emits('update:modelValue', [iconValue])
-          emits('change', [iconValue], icon)
-        }
-      }
-    } else {
-      if (iconValue == props.modelValue) {
-        if (props.clearable) emits('update:modelValue', null)
-      } else {
-        emits('update:modelValue', iconValue)
-      }
-      emits('change', icon)
-    }
+    // 'svg' mode is best-effort: only icons already resolved once (cached)
+    // can be matched against an opaque stored SVG string.
+    const cached = getSanitizedSvgFromCache(icon.name)
+    if (!cached) return false
+    return coreIsIconSelected(props.modelValue, cached, props.multiple)
   }
 
   const picker = useTemplateRef<HTMLDivElement>('picker')
@@ -230,14 +167,10 @@
               <ItemIcon
                 v-if="i < props.selectedItemsToDisplay"
                 class="item"
-                :data="getSvgCodeOrUrl(value)"
+                :data="value"
                 :size="20"
                 :color="props.theme == 'dark' ? '#e5e7eb' : '#222'"
-                @click.stop="
-                  onSelected(
-                    iconsList?.find((icon: Icon) => getValue(icon) == value)
-                  )
-                " />
+                @click.stop="onBadgeRemove(value)" />
             </template>
             <div
               v-if="props.modelValue?.length > props.selectedItemsToDisplay"
@@ -250,16 +183,10 @@
         </div>
         <ItemIcon
           v-else
-          :data="getSvgCodeOrUrl(props.modelValue as string)"
+          :data="props.modelValue as string"
           :size="20"
           :color="props.theme == 'dark' ? '#e5e7eb' : '#222'"
-          @click.stop="
-            onSelected(
-              iconsList?.find(
-                (icon: Icon) => getValue(icon) == props.modelValue
-              )
-            )
-          " />
+          @click.stop="onBadgeRemove(props.modelValue as string)" />
       </template>
       <span v-else class="placeholder">{{ props.placeholder }}</span>
     </div>
@@ -283,13 +210,13 @@
             <template #default="{ item }">
               <div
                 :key="item.name"
-                :class="{ active: isIconSelected(item) }"
-                @click="onSelected(item)">
+                :class="{ active: isGridIconSelected(item) }"
+                @click="onGridItemSelected(item)">
                 <ItemIcon
-                  :data="item.svgUrl"
+                  :data="item.name"
                   :size="24"
                   :color="
-                    isIconSelected(item)
+                    isGridIconSelected(item)
                       ? props.selectedIconColor
                       : props.theme == 'dark'
                         ? '#e5e7eb'

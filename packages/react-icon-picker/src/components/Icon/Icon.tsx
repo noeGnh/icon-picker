@@ -1,88 +1,43 @@
-import DOMPurify from 'dompurify'
-import React, { useEffect, useState, useRef } from 'react'
-import { getIconFromCache, setIconInCache } from '../../cache'
-import { isSVG, isURL, useIconsLoader } from '../../utils'
+import {
+  getSanitizedSvgFromCache,
+  isSVG,
+  setSanitizedSvgInCache,
+} from '@arkn/icon-picker-core'
+import { Icon as IconifyIcon } from '@iconify/react'
+import React, { useMemo } from 'react'
 import type { IconProps } from '../../types'
 import styles from './Icon.module.css'
 
-const Icon: React.FC<IconProps> = ({ data, color, size = 24, style: restStyle, className: restClassName, ...restProps }) => {
-  const { prepareData } = useIconsLoader()
-  const [svgCode, setSvgCode] = useState<string>('')
-  const [isLoading, setIsLoading] = useState(false)
-  const abortControllerRef = useRef<AbortController | null>(null)
-
+const Icon: React.FC<IconProps> = ({
+  data,
+  color,
+  size = 24,
+  style: restStyle,
+  className: restClassName,
+  ...restProps
+}) => {
   const computedSize = typeof size === 'number' ? `${size}px` : size || 'unset'
 
-  const fetchData = async (url: string) => {
-    if (abortControllerRef.current) {
-      abortControllerRef.current.abort()
-    }
+  const isRawSvg = useMemo(() => !!data && isSVG(data), [data])
 
-    const filename = url.split('/').pop()
-    const name = filename?.split('.').slice(0, -1).join('.') || 'icon'
+  const sanitizedSvg = useMemo(() => {
+    if (!data || !isRawSvg) return ''
+    return getSanitizedSvgFromCache(data) ?? setSanitizedSvgInCache(data, data)
+  }, [data, isRawSvg])
 
-    const cached = getIconFromCache(name)
-    if (cached) {
-      setSvgCode(cached)
-      return
-    }
-
-    if (isLoading || !url) return
-
-    setIsLoading(true)
-    abortControllerRef.current = new AbortController()
-
-    try {
-      const response = await fetch(url, {
-        signal: abortControllerRef.current.signal,
-      })
-
-      const svg = await response.text()
-
-      setIconInCache(name, svg)
-      setSvgCode(svg)
-    } catch (error: any) {
-      if (error.name !== 'AbortError') {
-        console.error(`Failed to load icon ${name}`, error)
-        setSvgCode(
-          `<svg viewBox="0 0 24 24"><rect width="24" height="24" fill="#eee"/></svg>`
-        )
-      }
-    } finally {
-      setIsLoading(false)
-      abortControllerRef.current = null
-    }
+  if (data && !isRawSvg) {
+    return (
+      <IconifyIcon
+        icon={data}
+        color={color}
+        width={size}
+        height={size}
+        className={restClassName}
+        style={restStyle}
+        {...(restProps as Record<string, unknown>)}
+      />
+    )
   }
-
-  useEffect(() => {
-    const loadIcon = async () => {
-      if (!data) {
-        setSvgCode('')
-        return
-      }
-
-      if (isURL(data)) {
-        fetchData(data)
-      } else if (isSVG(data)) {
-        setSvgCode(
-          DOMPurify.sanitize(data, { USE_PROFILES: { svg: true, svgFilters: true } })
-        )
-      } else {
-        const iconsList = await prepareData()
-        const url = iconsList?.find((icon) => icon.name === data)?.svgUrl || ''
-        fetchData(url)
-      }
-    }
-
-    loadIcon()
-
-    // Cleanup: abort ongoing fetch on unmount or data change
-    return () => {
-      if (abortControllerRef.current) {
-        abortControllerRef.current.abort()
-      }
-    }
-  }, [data])
 
   return (
     <i
@@ -97,7 +52,7 @@ const Icon: React.FC<IconProps> = ({ data, color, size = 24, style: restStyle, c
         } as React.CSSProperties
       }
       {...restProps}
-      dangerouslySetInnerHTML={{ __html: svgCode }}
+      dangerouslySetInnerHTML={{ __html: sanitizedSvg }}
     />
   )
 }

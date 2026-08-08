@@ -3,17 +3,17 @@
   const darkMode = ref<boolean>(false)
   const clearable = ref<boolean>(false)
   const multipleSelection = ref<boolean>(false)
-  const selectedLibraries = ref<string[]>(['fa'])
+  const selectedLibraries = ref<string[]>(['tabler'])
   const inputSize = ref<'small' | 'medium' | 'large'>('medium')
 
+  // Iconify collection prefixes - see https://icon-sets.iconify.design for the full list.
   const iconLibraries = [
-    'antd',
+    'ant-design',
     'carbon',
     'fa',
     'fluent',
-    'ionicons4',
-    'ionicons5',
-    'material',
+    'ion',
+    'material-symbols',
     'tabler',
   ]
 
@@ -107,7 +107,6 @@
     <hr />
     <Vue3IconPicker
       v-model="selection"
-      value-type="svg"
       :icon-library="selectedLibraries"
       :multiple="multipleSelection"
       :clearable="clearable"
