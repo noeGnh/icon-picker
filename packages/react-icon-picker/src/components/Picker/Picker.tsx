@@ -165,19 +165,10 @@ const Picker: React.FC<IconPickerProps> = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchQuery, JSON.stringify(normalizedPrefixes), JSON.stringify(includeIcons), JSON.stringify(excludeIcons)])
 
-  const statusText = isLoading
-    ? 'Loading…'
-    : filteredIcons.length
-      ? `${filteredIcons.length} ${
-          searchQuery.trim()
-            ? filteredIcons.length === 1
-              ? 'result'
-              : 'results'
-            : filteredIcons.length === 1
-              ? 'icon'
-              : 'icons'
-        }`
-      : ''
+  // Only a transient loading cue, not a persistent result count - the
+  // Compact Dock direction hides that kind of metadata entirely to stay
+  // minimal, so nothing is shown once a result set has settled.
+  const statusText = isLoading ? 'Loading…' : ''
 
   const clearSearch = () => setSearchQuery('')
 

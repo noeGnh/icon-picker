@@ -149,14 +149,10 @@
     { immediate: true, deep: true }
   )
 
-  const statusText = computed(() => {
-    if (isLoading.value) return 'Loading…'
-    const count = filteredIcons.value.length
-    if (!count) return ''
-    return searchQuery.value.trim()
-      ? `${count} result${count === 1 ? '' : 's'}`
-      : `${count} icon${count === 1 ? '' : 's'}`
-  })
+  // Only a transient loading cue, not a persistent result count - the
+  // Compact Dock direction hides that kind of metadata entirely to stay
+  // minimal, so nothing is shown once a result set has settled.
+  const statusText = computed(() => (isLoading.value ? 'Loading…' : ''))
 
   const clearSearch = () => {
     searchQuery.value = ''

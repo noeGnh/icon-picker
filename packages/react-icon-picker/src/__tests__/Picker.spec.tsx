@@ -216,22 +216,16 @@ describe('Picker search + selection', () => {
     expect(browseCollectionMock).toHaveBeenCalledWith('carbon')
   })
 
-  it('shows a status text with the result/icon count', async () => {
-    // Scoped to this render's own container rather than getByText: the test
-    // file doesn't clean up the DOM between tests (afterEach isn't global
-    // here), so other pickers' leftover "1 icon" text would make a
-    // document-wide query ambiguous.
-    const meta = (container: HTMLElement) => container.querySelector('[class*="r3ipMeta"]')?.textContent
-
+  it('does not show a persistent result/icon count once loading settles (Compact Dock hides it)', async () => {
     const { container } = render(<Picker value={null} onChange={vi.fn()} />)
     await findGridCell(container)
-    await waitFor(() => expect(meta(container)).toBe('1 icon'))
+    expect(container.querySelector('[class*="r3ipMeta"]')).toBeNull()
 
     await search(container, 'home')
-    await waitFor(() => expect(meta(container)).toBe('1 result'))
+    expect(container.querySelector('[class*="r3ipMeta"]')).toBeNull()
   })
 
-  it('shows a loading status text while a search is in flight', async () => {
+  it('shows a transient loading status text while a search is in flight, then hides it', async () => {
     let resolveSearch!: (value: unknown) => void
     searchIconsMock.mockReturnValue(new Promise((resolve) => (resolveSearch = resolve)))
 
@@ -247,6 +241,8 @@ describe('Picker search + selection', () => {
 
     resolveSearch(SEARCH_RESULTS)
     await waitForIcon(container, 'tabler:home')
+
+    expect(container.querySelector('[class*="r3ipMeta"]')).toBeNull()
   })
 
   it('closes the dropdown when Escape is pressed while open', async () => {

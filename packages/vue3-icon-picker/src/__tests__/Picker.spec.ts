@@ -206,15 +206,15 @@ describe('Picker search + selection', () => {
     expect(browseCollectionMock).toHaveBeenCalledWith('carbon')
   })
 
-  it('shows a status text with the result/icon count', async () => {
+  it('does not show a persistent result/icon count once loading settles (Compact Dock hides it)', async () => {
     const wrapper = await mountAndWaitForDefaults({ modelValue: null })
-    expect(wrapper.find('.v3ip__meta').text()).toBe('1 icon')
+    expect(wrapper.find('.v3ip__meta').exists()).toBe(false)
 
     await typeAndDebounce(wrapper, 'home')
-    expect(wrapper.find('.v3ip__meta').text()).toBe('1 result')
+    expect(wrapper.find('.v3ip__meta').exists()).toBe(false)
   })
 
-  it('shows a loading status text while a search is in flight', async () => {
+  it('shows a transient loading status text while a search is in flight, then hides it', async () => {
     let resolveSearch!: (value: unknown) => void
     searchIconsMock.mockReturnValue(new Promise((resolve) => (resolveSearch = resolve)))
 
@@ -228,7 +228,7 @@ describe('Picker search + selection', () => {
     resolveSearch(SEARCH_RESULTS)
     await flushPromises()
 
-    expect(wrapper.find('.v3ip__meta').text()).toBe('1 result')
+    expect(wrapper.find('.v3ip__meta').exists()).toBe(false)
   })
 
   it('closes the dropdown when Escape is pressed while open', async () => {

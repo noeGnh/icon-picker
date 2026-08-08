@@ -32,7 +32,7 @@ This package searches icons live from [Iconify](https://iconify.design) - one AP
 
 Before you type anything, the picker shows a default set of icons instead of an empty state: the collection(s) given in `iconLibrary` if any, otherwise a random pick from a small curated set (Tabler, Carbon, Font Awesome, Fluent, Ionicons, Material Symbols, Ant Design).
 
-While a search or the default set is loading, a small status line shows "Loading…", then the result/icon count once it settles. The search box gets a clear (×) button once you've typed something, multi-select shows a clear-all button next to the selected badges, and pressing <kbd>Escape</kbd> while the dropdown is open closes it.
+While a search or the default set is loading, a small status line briefly shows "Loading…" (it disappears once results settle - no persistent count, to stay minimal). The search box gets a clear (×) button once you've typed something, multi-select shows a clear-all button next to the selected badges, and pressing <kbd>Escape</kbd> while the dropdown is open closes it.
 
 ## Usage
 
