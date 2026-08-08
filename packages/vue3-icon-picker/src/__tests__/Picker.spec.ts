@@ -1,4 +1,5 @@
 import { flushPromises, mount } from '@vue/test-utils'
+import { nextTick } from 'vue'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 // vue-virtual-scroller measures real DOM layout to decide how many rows to
@@ -107,7 +108,7 @@ describe('Picker search + selection', () => {
     await flushPromises()
 
     expect(searchIconsMock).toHaveBeenCalledWith('home', { prefixes: undefined })
-    expect(wrapper.find('.v3ip__items > div').exists()).toBe(true)
+    expect(wrapper.find('.v3ip__items > button').exists()).toBe(true)
   })
 
   it('restricts the search to the given iconLibrary prefixes', async () => {
@@ -121,7 +122,7 @@ describe('Picker search + selection', () => {
     const wrapper = await mountAndWaitForDefaults({ modelValue: null })
     await typeAndDebounce(wrapper, 'home')
 
-    await wrapper.find('.v3ip__items > div').trigger('click')
+    await wrapper.find('.v3ip__items > button').trigger('click')
 
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual(['tabler:home'])
     expect(loadIconMock).not.toHaveBeenCalled()
@@ -138,7 +139,7 @@ describe('Picker search + selection', () => {
     const wrapper = await mountAndWaitForDefaults({ modelValue: null, valueType: 'svg' })
     await typeAndDebounce(wrapper, 'home')
 
-    await wrapper.find('.v3ip__items > div').trigger('click')
+    await wrapper.find('.v3ip__items > button').trigger('click')
     expect(wrapper.emitted('update:modelValue')).toBeUndefined()
 
     resolveLoad({})
@@ -153,7 +154,7 @@ describe('Picker search + selection', () => {
     const wrapper = await mountAndWaitForDefaults({ modelValue: ['tabler:home'], multiple: true })
     await typeAndDebounce(wrapper, 'home')
 
-    await wrapper.find('.v3ip__items > div').trigger('click')
+    await wrapper.find('.v3ip__items > button').trigger('click')
 
     expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([[]])
   })
@@ -164,6 +165,70 @@ describe('Picker search + selection', () => {
     await typeAndDebounce(wrapper, 'zzz')
 
     expect(wrapper.find('.v3ip__empty').text()).toContain('No icons')
+  })
+
+  it('shows a clear button once there is a query, which clears it and reloads the default set', async () => {
+    const wrapper = await mountAndWaitForDefaults({ modelValue: null, iconLibrary: 'carbon' })
+
+    expect(wrapper.find('.v3ip__clear').exists()).toBe(false)
+
+    await typeAndDebounce(wrapper, 'home')
+    expect(wrapper.find('.v3ip__clear').exists()).toBe(true)
+
+    browseCollectionMock.mockClear()
+    await wrapper.find('.v3ip__clear').trigger('click')
+    vi.advanceTimersByTime(300)
+    await flushPromises()
+
+    expect((wrapper.find('input[name="search"]').element as HTMLInputElement).value).toBe('')
+    expect(browseCollectionMock).toHaveBeenCalledWith('carbon')
+  })
+
+  it('shows a status text with the result/icon count', async () => {
+    const wrapper = await mountAndWaitForDefaults({ modelValue: null })
+    expect(wrapper.find('.v3ip__meta').text()).toBe('1 icon')
+
+    await typeAndDebounce(wrapper, 'home')
+    expect(wrapper.find('.v3ip__meta').text()).toBe('1 result')
+  })
+
+  it('shows a loading status text while a search is in flight', async () => {
+    let resolveSearch!: (value: unknown) => void
+    searchIconsMock.mockReturnValue(new Promise((resolve) => (resolveSearch = resolve)))
+
+    const wrapper = await mountAndWaitForDefaults({ modelValue: null })
+    await wrapper.find('input[name="search"]').setValue('home')
+    vi.advanceTimersByTime(300)
+    await nextTick()
+
+    expect(wrapper.find('.v3ip__meta').text()).toBe('Loading…')
+
+    resolveSearch(SEARCH_RESULTS)
+    await flushPromises()
+
+    expect(wrapper.find('.v3ip__meta').text()).toBe('1 result')
+  })
+
+  it('closes the dropdown when Escape is pressed while open', async () => {
+    const wrapper = await mountAndWaitForDefaults({ modelValue: null })
+
+    await wrapper.find('.v3ip__selected').trigger('click')
+    expect(wrapper.find('.v3ip__selected').classes()).toContain('open')
+
+    await wrapper.find('.v3ip__custom-select').trigger('keydown', { key: 'Escape' })
+    expect(wrapper.find('.v3ip__selected').classes()).not.toContain('open')
+  })
+
+  it('multi-select: shows a clear-all button that clears every selected value at once', async () => {
+    const wrapper = await mountAndWaitForDefaults({
+      modelValue: ['tabler:home', 'tabler:search'],
+      multiple: true,
+    })
+
+    await wrapper.find('.v3ip__clear-all').trigger('click')
+
+    expect(wrapper.emitted('update:modelValue')?.[0]).toEqual([[]])
+    expect(wrapper.emitted('change')?.[0]).toEqual([[]])
   })
 
   describe('default icons (before typing anything)', () => {
@@ -180,7 +245,7 @@ describe('Picker search + selection', () => {
       expect(pickRandomPrefixMock).toHaveBeenCalled()
       expect(browseCollectionMock).toHaveBeenCalledWith('tabler')
       expect(browseCollectionsMock).not.toHaveBeenCalled()
-      expect(wrapper.find('.v3ip__items > div').exists()).toBe(true)
+      expect(wrapper.find('.v3ip__items > button').exists()).toBe(true)
     })
 
     it('browses the given collection when iconLibrary is a single prefix', async () => {

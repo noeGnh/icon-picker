@@ -49,8 +49,8 @@
     placeholder: undefined,
     multiple: false,
     iconLibrary: undefined,
-    selectedIconBgColor: '#d3d3d3',
-    selectedIconColor: '#000000',
+    selectedIconBgColor: '#e8edfc',
+    selectedIconColor: '#2b5fe0',
     displaySearch: true,
     multipleLimit: Infinity,
     disabled: false,
@@ -70,6 +70,7 @@
   const searchQuery = ref<string>('')
   const open = ref<boolean>(false)
   const filteredIcons = ref<IconResult[]>([])
+  const isLoading = ref<boolean>(false)
 
   const normalizedPrefixes = computed(() => {
     if (!props.iconLibrary) return undefined
@@ -112,12 +113,17 @@
   }
 
   const runSearch = async (query: string) => {
-    if (!query.trim()) {
-      await loadDefaultIcons()
-      return
+    isLoading.value = true
+    try {
+      if (!query.trim()) {
+        await loadDefaultIcons()
+        return
+      }
+      const results = await searchIcons(query, { prefixes: normalizedPrefixes.value })
+      filteredIcons.value = applyLocalFilters(results)
+    } finally {
+      isLoading.value = false
     }
-    const results = await searchIcons(query, { prefixes: normalizedPrefixes.value })
-    filteredIcons.value = applyLocalFilters(results)
   }
 
   const debouncedSearch = debounce(runSearch, 300)
@@ -128,10 +134,23 @@
   watch(
     normalizedPrefixes,
     () => {
-      if (!searchQuery.value.trim()) loadDefaultIcons()
+      if (!searchQuery.value.trim()) runSearch('')
     },
     { immediate: true, deep: true }
   )
+
+  const statusText = computed(() => {
+    if (isLoading.value) return 'Loading…'
+    const count = filteredIcons.value.length
+    if (!count) return ''
+    return searchQuery.value.trim()
+      ? `${count} result${count === 1 ? '' : 's'}`
+      : `${count} icon${count === 1 ? '' : 's'}`
+  })
+
+  const clearSearch = () => {
+    searchQuery.value = ''
+  }
 
   /** Resolves the value to store for a freshly selected icon (async for valueType: 'svg'). */
   const getResolvedValue = async (icon: IconResult): Promise<string | undefined> => {
@@ -161,6 +180,12 @@
     applyToggle(value)
   }
 
+  const clearAll = () => {
+    const next = props.multiple ? [] : null
+    emits('update:modelValue', next)
+    emits('change', next)
+  }
+
   const isGridIconSelected = (icon: IconResult): boolean => {
     if (props.valueType === 'name') {
       return coreIsIconSelected(props.modelValue, icon.name, props.multiple)
@@ -175,8 +200,30 @@
   const picker = useTemplateRef<HTMLDivElement>('picker')
   onClickOutside(picker, () => (open.value = false))
 
+  const toggleOpen = () => {
+    if (props.disabled) return
+    open.value = !open.value
+  }
+
+  const onPickerKeydown = (event: KeyboardEvent) => {
+    if (event.key === 'Escape' && open.value) {
+      event.stopPropagation()
+      open.value = false
+    }
+  }
+
   const scroller = useTemplateRef<HTMLDivElement>('scroller')
   const { width } = useElementSize(scroller)
+
+  /** Column count adapts to the picker's own width instead of a fixed 4, so
+   * narrow (sidebar) and wide embeddings both keep a comfortable cell size. */
+  const columnCount = computed(() => {
+    if (!width.value) return 4
+    return Math.max(3, Math.min(8, Math.floor(width.value / 34)))
+  })
+  const itemSecondarySize = computed(() =>
+    columnCount.value ? width.value / columnCount.value : 0
+  )
 
   const slots = useSlots()
   const hasSlot = (name: string) => {
@@ -187,11 +234,17 @@
 <template>
   <div
     ref="picker"
-    :class="`v3ip__custom-select v3ip__${props.inputSize} v3ip__${props.theme}`">
+    :class="`v3ip__custom-select v3ip__${props.inputSize} v3ip__${props.theme}`"
+    @keydown="onPickerKeydown">
     <div
       class="v3ip__selected"
       :class="{ open: open, disabled: props.disabled }"
-      @click="open = props.disabled ? false : !open">
+      role="button"
+      :aria-expanded="open"
+      :tabindex="props.disabled ? -1 : 0"
+      @click="toggleOpen"
+      @keydown.enter.prevent="toggleOpen"
+      @keydown.space.prevent="toggleOpen">
       <template
         v-if="
           (!props.multiple && props.modelValue) ||
@@ -206,7 +259,7 @@
                 v-if="i < props.selectedItemsToDisplay"
                 class="item"
                 :data="value"
-                :size="20"
+                :size="18"
                 :color="props.theme == 'dark' ? '#e5e7eb' : '#222'"
                 @click.stop="onBadgeRemove(value)" />
             </template>
@@ -218,42 +271,66 @@
               </b>
             </div>
           </template>
+          <button
+            v-if="Array.isArray(props.modelValue) && props.modelValue.length"
+            type="button"
+            class="v3ip__clear-all"
+            title="Clear all"
+            @click.stop="clearAll">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
         </div>
         <ItemIcon
           v-else
           :data="props.modelValue as string"
-          :size="20"
+          :size="18"
           :color="props.theme == 'dark' ? '#e5e7eb' : '#222'"
           @click.stop="onBadgeRemove(props.modelValue as string)" />
       </template>
       <span v-else class="placeholder">{{ props.placeholder }}</span>
+      <span class="v3ip__chevron" :class="{ open }">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </span>
     </div>
     <transition name="fade">
       <div v-show="open">
         <div v-show="props.displaySearch" class="v3ip__search">
+          <svg class="v3ip__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <input
             v-model="searchQuery"
             type="text"
             name="search"
+            aria-label="Search icons"
             :placeholder="props.searchPlaceholder" />
+          <button
+            v-if="searchQuery"
+            type="button"
+            class="v3ip__clear"
+            title="Clear search"
+            @click="clearSearch">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
         </div>
+        <div v-if="statusText" class="v3ip__meta">{{ statusText }}</div>
         <template v-if="filteredIcons && filteredIcons.length">
           <RecycleScroller
             ref="scroller"
             class="v3ip__items"
             key-field="name"
             :items="filteredIcons"
-            :item-size="40"
-            :grid-items="4"
-            :item-secondary-size="width / 4">
+            :item-size="34"
+            :grid-items="columnCount"
+            :item-secondary-size="itemSecondarySize">
             <template #default="{ item }">
-              <div
-                :key="item.name"
+              <button
+                type="button"
                 :class="{ active: isGridIconSelected(item) }"
+                :title="item.name"
+                :aria-pressed="isGridIconSelected(item)"
                 @click="onGridItemSelected(item)">
                 <ItemIcon
                   :data="item.name"
-                  :size="24"
+                  :size="18"
                   :color="
                     isGridIconSelected(item)
                       ? props.selectedIconColor
@@ -261,7 +338,7 @@
                         ? '#e5e7eb'
                         : '#222'
                   " />
-              </div>
+              </button>
             </template>
           </RecycleScroller>
         </template>
@@ -278,258 +355,223 @@
 
 <style scoped>
   .v3ip__custom-select {
+    --v3ip-surface: #ffffff;
+    --v3ip-ground: #f4f4f5;
+    --v3ip-ink: #111114;
+    --v3ip-muted: #8a8a90;
+    --v3ip-line: #e3e3e6;
+    --v3ip-accent: #2b5fe0;
     position: relative;
     width: 100%;
     text-align: left;
     outline: none;
     min-width: 200px;
+    font-size: 13.5px;
   }
 
   .v3ip__custom-select .v3ip__selected {
-    background-color: #fff;
-    border-radius: 6px;
-    border: 1px solid rgb(224, 224, 230);
-    color: #333639;
-    padding-left: 1em;
-    padding-right: 1.4em;
+    background-color: var(--v3ip-surface);
+    border-radius: 4px;
+    border: 1px solid var(--v3ip-line);
+    color: var(--v3ip-ink);
+    padding: 0 0.5em 0 0.75em;
     cursor: pointer;
     user-select: none;
     display: flex;
     align-items: center;
+    gap: 6px;
   }
 
-  .v3ip__custom-select.v3ip__small {
-    height: 24px;
-    line-height: 24px;
+  .v3ip__custom-select .v3ip__selected:focus-visible {
+    outline: 2px solid var(--v3ip-accent);
+    outline-offset: 1px;
   }
 
-  .v3ip__custom-select.v3ip__small .v3ip__selected {
-    min-height: 24px;
-  }
-
-  .v3ip__custom-select.v3ip__medium {
-    height: 34px;
-    line-height: 34px;
-  }
-
-  .v3ip__custom-select.v3ip__medium .v3ip__selected {
-    min-height: 34px;
-  }
-
-  .v3ip__custom-select.v3ip__large {
-    height: 40px;
-    line-height: 40px;
-  }
-
-  .v3ip__custom-select.v3ip__large .v3ip__selected {
-    min-height: 40px;
-  }
+  .v3ip__custom-select.v3ip__small { min-height: 26px; }
+  .v3ip__custom-select.v3ip__medium { min-height: 32px; }
+  .v3ip__custom-select.v3ip__large { min-height: 40px; }
 
   .v3ip__custom-select .v3ip__selected .multiple {
     align-items: center;
     display: flex;
+    gap: 5px;
+    flex: 1;
+    min-width: 0;
   }
 
   .v3ip__custom-select .v3ip__selected .multiple .item {
-    display: inline-block;
-    margin-right: 10px;
+    display: flex;
   }
 
   .v3ip__custom-select .v3ip__selected .placeholder {
-    color: silver;
+    color: var(--v3ip-muted);
+    flex: 1;
   }
 
   .v3ip__custom-select .v3ip__selected.open {
-    border: 1px solid #c2c2c2;
-    border-radius: 6px 6px 0px 0px;
-  }
-
-  .v3ip__custom-select .v3ip__selected.open:after {
-    -webkit-transform: rotate(180deg);
-    -moz-transform: rotate(180deg);
-    -ms-transform: rotate(180deg);
-    -o-transform: rotate(180deg);
-    transform: rotate(180deg);
-  }
-
-  .v3ip__custom-select.v3ip__small .v3ip__selected.open:after {
-    top: 5px;
-  }
-
-  .v3ip__custom-select.v3ip__medium .v3ip__selected.open:after {
-    top: 10px;
-  }
-
-  .v3ip__custom-select.v3ip__large .v3ip__selected.open:after {
-    top: 14px;
-  }
-
-  .v3ip__custom-select .v3ip__selected:after {
-    position: absolute;
-    content: '';
-    right: 1em;
-    width: 0;
-    height: 0;
-    border: 5px solid transparent;
-    border-color: #333639 transparent transparent transparent;
-  }
-
-  .v3ip__custom-select.v3ip__small .v3ip__selected:after {
-    top: 12px;
-  }
-
-  .v3ip__custom-select.v3ip__medium .v3ip__selected:after {
-    top: 16px;
-  }
-
-  .v3ip__custom-select.v3ip__large .v3ip__selected:after {
-    top: 20px;
+    border-color: var(--v3ip-accent);
   }
 
   .v3ip__custom-select .v3ip__selected.disabled {
     cursor: default;
-    background-color: whitesmoke;
+    background-color: var(--v3ip-ground);
+    color: var(--v3ip-muted);
   }
 
+  .v3ip__chevron {
+    display: flex;
+    align-items: center;
+    color: var(--v3ip-muted);
+    flex-shrink: 0;
+    transition: transform 0.15s ease;
+  }
+  .v3ip__chevron svg { width: 13px; height: 13px; }
+  .v3ip__chevron.open { transform: rotate(180deg); }
+
+  .v3ip__clear-all,
+  .v3ip__clear {
+    all: unset;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--v3ip-muted);
+    cursor: pointer;
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+  .v3ip__clear-all:hover,
+  .v3ip__clear:hover {
+    color: var(--v3ip-ink);
+    background: var(--v3ip-ground);
+  }
+  .v3ip__clear-all svg,
+  .v3ip__clear svg { width: 12px; height: 12px; }
+  .v3ip__clear-all:focus-visible,
+  .v3ip__clear:focus-visible { outline: 2px solid var(--v3ip-accent); outline-offset: 1px; }
+  .v3ip__clear-all { margin-left: auto; }
+
   .v3ip__custom-select .v3ip__items {
-    color: #222;
-    border-radius: 0px 0px 6px 6px;
+    color: var(--v3ip-ink);
+    border-radius: 0 0 4px 4px;
     overflow: hidden;
-    border-right: 1px solid #c2c2c2;
-    border-left: 1px solid #c2c2c2;
-    border-bottom: 1px solid #c2c2c2;
+    border: 1px solid var(--v3ip-line);
+    border-top: none;
     position: absolute;
-    background-color: #fff;
+    background-color: var(--v3ip-surface);
     left: 0;
     right: 0;
     z-index: 1;
-    max-height: 225px;
+    max-height: 216px;
     overflow-y: auto;
     display: flex;
+    box-shadow: 0 6px 16px rgba(17, 17, 20, 0.08);
   }
 
-  .v3ip__custom-select .v3ip__items div {
-    color: #222;
+  .v3ip__custom-select .v3ip__items button {
+    all: unset;
+    box-sizing: border-box;
+    color: var(--v3ip-ink);
     cursor: pointer;
     user-select: none;
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 40px;
+    height: 34px;
+    border-radius: 3px;
   }
 
-  .v3ip__custom-select .v3ip__items div:hover {
-    background-color: rgb(243, 243, 245);
+  .v3ip__custom-select .v3ip__items button:hover {
+    background-color: var(--v3ip-ground);
   }
 
-  .v3ip__custom-select .v3ip__items div.active {
+  .v3ip__custom-select .v3ip__items button:focus-visible {
+    outline: 2px solid var(--v3ip-accent);
+    outline-offset: -2px;
+  }
+
+  .v3ip__custom-select .v3ip__items button.active {
+    box-shadow: inset 0 0 0 1.5px var(--v3ip-accent);
     background-color: v-bind(selectedIconBgColor);
   }
 
   .v3ip__search {
     width: 100%;
     display: flex;
-    justify-content: center;
+    align-items: center;
     position: relative;
     z-index: 1;
+    border: 1px solid var(--v3ip-line);
+    border-top: none;
+    background: var(--v3ip-surface);
   }
-  .v3ip__search input,
-  .v3ip__search input:focus-visible {
+
+  .v3ip__search-icon {
+    position: absolute;
+    left: 9px;
+    width: 13px;
+    height: 13px;
+    color: var(--v3ip-muted);
+    pointer-events: none;
+  }
+
+  .v3ip__search input {
     width: 100%;
     border-radius: 0;
-    line-height: 30px;
-    border: 0.5px solid #c2c2c2;
-    border-top: none;
-    padding-right: 1em;
-    padding-left: 1em;
-    background: #fff;
+    line-height: 28px;
+    border: none;
+    padding: 0 28px 0 28px;
+    background: transparent;
+    color: var(--v3ip-ink);
+    font: inherit;
   }
 
   .v3ip__search input:focus-visible {
-    border: 0.5px solid #c2c2c2;
-    border-top: none;
     outline: 0;
   }
 
   .v3ip__search input::placeholder {
-    color: #c2c2c2;
+    color: var(--v3ip-muted);
+  }
+
+  .v3ip__meta {
+    padding: 5px 10px;
+    font-size: 11px;
+    color: var(--v3ip-muted);
+    background: var(--v3ip-surface);
+    border-left: 1px solid var(--v3ip-line);
+    border-right: 1px solid var(--v3ip-line);
+    position: relative;
+    z-index: 1;
+    font-variant-numeric: tabular-nums;
   }
 
   .v3ip__empty {
-    border-radius: 0px 0px 6px 6px;
-    border-right: 1px solid #c2c2c2;
-    border-left: 1px solid #c2c2c2;
-    border-bottom: 1px solid #c2c2c2;
-    background-color: #fff;
-    padding-bottom: 5px;
-    padding-top: 5px;
+    border-radius: 0 0 4px 4px;
+    border: 1px solid var(--v3ip-line);
+    border-top: none;
+    background-color: var(--v3ip-surface);
+    padding: 22px 10px;
     position: relative;
     z-index: 1;
+    box-shadow: 0 6px 16px rgba(17, 17, 20, 0.08);
   }
 
   .v3ip__empty > .default-text {
     text-align: center;
+    color: var(--v3ip-muted);
   }
 </style>
 
 <style scoped>
-  .v3ip__dark.v3ip__custom-select .v3ip__selected {
-    background-color: #1f1f23;
-    border-color: #3a3a3f;
-    color: #e5e7eb;
-  }
-
-  .v3ip__dark.v3ip__custom-select .v3ip__selected .placeholder {
-    color: #9ca3af;
-  }
-
-  .v3ip__dark.v3ip__custom-select .v3ip__selected.open {
-    border-color: #52525b;
-  }
-
-  .v3ip__dark.v3ip__custom-select .v3ip__selected:after {
-    border-color: #e5e7eb transparent transparent transparent;
-  }
-
-  .v3ip__dark.v3ip__custom-select .v3ip__selected.disabled {
-    background-color: #2a2a2e;
-    color: #6b7280;
-    cursor: not-allowed;
-  }
-
-  .v3ip__dark.v3ip__custom-select .v3ip__items {
-    background-color: #1f1f23;
-    border-color: #3a3a3f;
-    color: #e5e7eb;
-  }
-
-  .v3ip__dark.v3ip__custom-select .v3ip__items div {
-    color: #e5e7eb;
-  }
-
-  .v3ip__dark.v3ip__custom-select .v3ip__items div:hover {
-    background-color: #2a2a2e;
-  }
-
-  .v3ip__dark.v3ip__custom-select .v3ip__items div.active {
-    background-color: v-bind(selectedIconBgColor);
-  }
-
-  .v3ip__dark .v3ip__search input,
-  .v3ip__dark .v3ip__search input:focus-visible {
-    background-color: #1f1f23;
-    border-color: #3a3a3f;
-    color: #e5e7eb;
-  }
-
-  .v3ip__dark .v3ip__search input::placeholder {
-    color: #9ca3af;
-  }
-
-  .v3ip__dark .v3ip__empty {
-    background-color: #1f1f23;
-    border-color: #3a3a3f;
-    color: #9ca3af;
+  .v3ip__dark.v3ip__custom-select {
+    --v3ip-surface: #18181b;
+    --v3ip-ground: #232327;
+    --v3ip-ink: #f2f2f3;
+    --v3ip-muted: #97979d;
+    --v3ip-line: #2c2c31;
+    --v3ip-accent: #6488ea;
   }
 </style>
 
