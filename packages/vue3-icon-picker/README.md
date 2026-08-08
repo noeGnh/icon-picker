@@ -30,7 +30,7 @@ While a search or the default set is loading, a small status line briefly shows 
 
 ## Demo
 
-View the live demo [`here`](https://noegnh.github.io/vue3-icon-picker/)
+View the live demo [`here`](https://noegnh.github.io/icon-picker/)
 
 ## Usage
 
