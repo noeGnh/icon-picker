@@ -49,7 +49,7 @@
     placeholder: undefined,
     multiple: false,
     iconLibrary: undefined,
-    selectedIconBgColor: '#e8edfc',
+    selectedIconBgColor: 'transparent',
     selectedIconColor: '#2b5fe0',
     displaySearch: true,
     multipleLimit: Infinity,
@@ -264,13 +264,20 @@
             <template
               v-for="(value, i) in (props.modelValue as string[]) || []"
               :key="i">
-              <ItemIcon
-                v-if="i < props.selectedItemsToDisplay"
-                class="item"
-                :data="value"
-                :size="18"
-                :color="props.theme == 'dark' ? '#e5e7eb' : '#222'"
-                @click.stop="onBadgeRemove(value)" />
+              <span v-if="i < props.selectedItemsToDisplay" class="v3ip__badge">
+                <ItemIcon
+                  class="v3ip__badge-icon"
+                  :data="value"
+                  :size="12"
+                  :color="props.theme == 'dark' ? '#f2f2f3' : '#111114'" />
+                <button
+                  type="button"
+                  class="v3ip__badge-remove"
+                  title="Remove"
+                  @click.stop="onBadgeRemove(value)">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+              </span>
             </template>
             <div
               v-if="props.modelValue?.length > props.selectedItemsToDisplay"
@@ -289,12 +296,20 @@
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
           </button>
         </div>
-        <ItemIcon
-          v-else
-          :data="props.modelValue as string"
-          :size="18"
-          :color="props.theme == 'dark' ? '#e5e7eb' : '#222'"
-          @click.stop="onBadgeRemove(props.modelValue as string)" />
+        <span v-else class="v3ip__badge v3ip__badge--single">
+          <ItemIcon
+            class="v3ip__badge-icon"
+            :data="props.modelValue as string"
+            :size="12"
+            :color="props.theme == 'dark' ? '#f2f2f3' : '#111114'" />
+          <button
+            type="button"
+            class="v3ip__badge-remove"
+            title="Remove"
+            @click.stop="onBadgeRemove(props.modelValue as string)">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+          </button>
+        </span>
       </template>
       <span v-else class="placeholder">{{ props.placeholder }}</span>
       <span class="v3ip__chevron" :class="{ open }">
@@ -302,7 +317,7 @@
       </span>
     </div>
     <transition name="fade">
-      <div v-show="open">
+      <div v-show="open" class="v3ip__panel">
         <div v-show="props.displaySearch" class="v3ip__search">
           <svg class="v3ip__search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
           <input
@@ -328,7 +343,7 @@
             class="v3ip__items"
             key-field="name"
             :items="filteredIcons"
-            :item-size="34"
+            :item-size="30"
             :grid-items="columnCount"
             :item-secondary-size="itemSecondarySize">
             <template #default="{ item }">
@@ -340,13 +355,13 @@
                 @click="onGridItemSelected(item)">
                 <ItemIcon
                   :data="item.name"
-                  :size="18"
+                  :size="14"
                   :color="
                     isGridIconSelected(item)
                       ? props.selectedIconColor
                       : props.theme == 'dark'
-                        ? '#e5e7eb'
-                        : '#222'
+                        ? '#f2f2f3'
+                        : '#111114'
                   " />
               </button>
             </template>
@@ -364,6 +379,10 @@
 </template>
 
 <style scoped>
+  /* Tokens transcribed directly from the approved Compact Dock mockup
+   * (icon-picker-directions.html, .dir-3 rules) - keep in sync with that
+   * source rather than eyeballing values, this is what "identical to the
+   * design" was measured against. */
   .v3ip__custom-select {
     --v3ip-surface: #ffffff;
     --v3ip-ground: #f4f4f5;
@@ -371,21 +390,22 @@
     --v3ip-muted: #8a8a90;
     --v3ip-line: #e3e3e6;
     --v3ip-accent: #2b5fe0;
+    --v3ip-radius: 3px;
     position: relative;
     width: 100%;
     text-align: left;
     outline: none;
     min-width: 200px;
     font-family: ui-sans-serif, -apple-system, 'Segoe UI', system-ui, sans-serif;
-    font-size: 13.5px;
+    font-size: 12px;
   }
 
   .v3ip__custom-select .v3ip__selected {
     background-color: var(--v3ip-surface);
-    border-radius: 4px;
+    border-radius: var(--v3ip-radius);
     border: 1px solid var(--v3ip-line);
     color: var(--v3ip-ink);
-    padding: 0 0.5em 0 0.75em;
+    padding: 5px 8px;
     cursor: pointer;
     user-select: none;
     display: flex;
@@ -398,14 +418,15 @@
     outline-offset: 1px;
   }
 
-  .v3ip__custom-select.v3ip__small .v3ip__selected { min-height: 26px; }
-  .v3ip__custom-select.v3ip__medium .v3ip__selected { min-height: 32px; }
-  .v3ip__custom-select.v3ip__large .v3ip__selected { min-height: 40px; }
+  .v3ip__custom-select.v3ip__small .v3ip__selected { min-height: 24px; }
+  .v3ip__custom-select.v3ip__medium .v3ip__selected { min-height: 28px; }
+  .v3ip__custom-select.v3ip__large .v3ip__selected { min-height: 34px; }
 
   .v3ip__custom-select .v3ip__selected .multiple {
     align-items: center;
     display: flex;
-    gap: 5px;
+    gap: 6px;
+    flex-wrap: wrap;
     flex: 1;
     min-width: 0;
   }
@@ -429,14 +450,48 @@
     color: var(--v3ip-muted);
   }
 
+  .v3ip__badge {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 20px;
+    height: 20px;
+    background: var(--v3ip-ground);
+    border-radius: 3px;
+    flex-shrink: 0;
+  }
+
+  .v3ip__badge-icon {
+    display: flex;
+  }
+
+  .v3ip__badge-remove {
+    all: unset;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    background: var(--v3ip-ink);
+    color: var(--v3ip-surface);
+    border-radius: 3px;
+    cursor: pointer;
+  }
+  .v3ip__badge-remove svg { width: 11px; height: 11px; }
+  .v3ip__badge:hover .v3ip__badge-icon { opacity: 0; }
+  .v3ip__badge:hover .v3ip__badge-remove { opacity: 1; }
+  .v3ip__badge-remove:focus-visible { opacity: 1; outline: 2px solid var(--v3ip-accent); outline-offset: 1px; }
+
   .v3ip__chevron {
     display: flex;
     align-items: center;
     color: var(--v3ip-muted);
     flex-shrink: 0;
-    transition: transform 0.15s ease;
+    transition: transform 0.18s ease;
   }
-  .v3ip__chevron svg { width: 13px; height: 13px; }
+  .v3ip__chevron svg { width: 12px; height: 12px; }
   .v3ip__chevron.open { transform: rotate(180deg); }
 
   .v3ip__clear-all,
@@ -447,8 +502,8 @@
     justify-content: center;
     color: var(--v3ip-muted);
     cursor: pointer;
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
     border-radius: 3px;
     flex-shrink: 0;
   }
@@ -458,26 +513,33 @@
     background: var(--v3ip-ground);
   }
   .v3ip__clear-all svg,
-  .v3ip__clear svg { width: 12px; height: 12px; }
+  .v3ip__clear svg { width: 11px; height: 11px; }
   .v3ip__clear-all:focus-visible,
   .v3ip__clear:focus-visible { outline: 2px solid var(--v3ip-accent); outline-offset: 1px; }
   .v3ip__clear-all { margin-left: auto; }
 
-  .v3ip__custom-select .v3ip__items {
-    color: var(--v3ip-ink);
-    border-radius: 0 0 4px 4px;
-    overflow: hidden;
-    border: 1px solid var(--v3ip-line);
-    border-top: none;
+  /* Floats below the trigger with a gap (not fused to its bottom edge) and
+   * carries its own border/radius/shadow on all four corners, matching the
+   * mockup's .picker-panel - the search bar, meta line, grid and empty
+   * state are borderless sections inside this one box. */
+  .v3ip__panel {
     position: absolute;
-    background-color: var(--v3ip-surface);
     left: 0;
     right: 0;
-    z-index: 1;
-    max-height: 216px;
+    top: calc(100% + 6px);
+    z-index: 4;
+    background-color: var(--v3ip-surface);
+    border: 1px solid var(--v3ip-line);
+    border-radius: var(--v3ip-radius);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+    overflow: hidden;
+  }
+
+  .v3ip__custom-select .v3ip__items {
+    color: var(--v3ip-ink);
+    max-height: 168px;
     overflow-y: auto;
     display: flex;
-    box-shadow: 0 6px 16px rgba(17, 17, 20, 0.08);
   }
 
   .v3ip__custom-select .v3ip__items button {
@@ -489,7 +551,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    height: 34px;
+    height: 30px;
     border-radius: 3px;
   }
 
@@ -512,17 +574,14 @@
     display: flex;
     align-items: center;
     position: relative;
-    z-index: 1;
-    border: 1px solid var(--v3ip-line);
-    border-top: none;
-    background: var(--v3ip-surface);
+    border-bottom: 1px solid var(--v3ip-line);
   }
 
   .v3ip__search-icon {
     position: absolute;
-    left: 9px;
-    width: 13px;
-    height: 13px;
+    left: 8px;
+    width: 12px;
+    height: 12px;
     color: var(--v3ip-muted);
     pointer-events: none;
   }
@@ -530,12 +589,12 @@
   .v3ip__search input {
     width: 100%;
     border-radius: 0;
-    line-height: 28px;
     border: none;
-    padding: 0 28px 0 28px;
+    padding: 7px 28px;
     background: transparent;
     color: var(--v3ip-ink);
     font: inherit;
+    font-size: 12px;
   }
 
   .v3ip__search input:focus-visible {
@@ -550,35 +609,24 @@
     padding: 5px 10px;
     font-size: 11px;
     color: var(--v3ip-muted);
-    background: var(--v3ip-surface);
-    border-left: 1px solid var(--v3ip-line);
-    border-right: 1px solid var(--v3ip-line);
-    position: relative;
-    z-index: 1;
     font-variant-numeric: tabular-nums;
   }
 
   .v3ip__empty {
-    border-radius: 0 0 4px 4px;
-    border: 1px solid var(--v3ip-line);
-    border-top: none;
-    background-color: var(--v3ip-surface);
-    padding: 22px 10px;
-    position: relative;
-    z-index: 1;
-    box-shadow: 0 6px 16px rgba(17, 17, 20, 0.08);
+    padding: 20px 12px;
+    color: var(--v3ip-muted);
+    font-size: 11px;
   }
 
   .v3ip__empty > .default-text {
     text-align: center;
-    color: var(--v3ip-muted);
   }
 </style>
 
 <style scoped>
   .v3ip__dark.v3ip__custom-select {
     --v3ip-surface: #18181b;
-    --v3ip-ground: #232327;
+    --v3ip-ground: #0e0e10;
     --v3ip-ink: #f2f2f3;
     --v3ip-muted: #97979d;
     --v3ip-line: #2c2c31;

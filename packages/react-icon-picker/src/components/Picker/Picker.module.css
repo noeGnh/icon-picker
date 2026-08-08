@@ -1,3 +1,7 @@
+/* Tokens transcribed directly from the approved Compact Dock mockup
+ * (icon-picker-directions.html, .dir-3 rules) - keep in sync with that
+ * source rather than eyeballing values, this is what "identical to the
+ * design" was measured against. */
 .r3ipCustomSelect {
   --r3ip-surface: #ffffff;
   --r3ip-ground: #f4f4f5;
@@ -5,21 +9,22 @@
   --r3ip-muted: #8a8a90;
   --r3ip-line: #e3e3e6;
   --r3ip-accent: #2b5fe0;
+  --r3ip-radius: 3px;
   position: relative;
   width: 100%;
   text-align: left;
   outline: none;
   min-width: 200px;
   font-family: ui-sans-serif, -apple-system, 'Segoe UI', system-ui, sans-serif;
-  font-size: 13.5px;
+  font-size: 12px;
 }
 
 .r3ipCustomSelect .r3ipSelected {
   background-color: var(--r3ip-surface);
-  border-radius: 4px;
+  border-radius: var(--r3ip-radius);
   border: 1px solid var(--r3ip-line);
   color: var(--r3ip-ink);
-  padding: 0 0.5em 0 0.75em;
+  padding: 5px 8px;
   cursor: pointer;
   user-select: none;
   display: flex;
@@ -33,21 +38,22 @@
 }
 
 .r3ipCustomSelect.r3ipSmall .r3ipSelected {
-  min-height: 26px;
+  min-height: 24px;
 }
 
 .r3ipCustomSelect.r3ipMedium .r3ipSelected {
-  min-height: 32px;
+  min-height: 28px;
 }
 
 .r3ipCustomSelect.r3ipLarge .r3ipSelected {
-  min-height: 40px;
+  min-height: 34px;
 }
 
 .r3ipCustomSelect .r3ipSelected .multiple {
   align-items: center;
   display: flex;
-  gap: 5px;
+  gap: 6px;
+  flex-wrap: wrap;
   flex: 1;
   min-width: 0;
 }
@@ -71,16 +77,61 @@
   color: var(--r3ip-muted);
 }
 
+.r3ipBadge {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 20px;
+  height: 20px;
+  background: var(--r3ip-ground);
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.r3ipBadgeIcon {
+  display: flex;
+}
+
+.r3ipBadgeRemove {
+  all: unset;
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  background: var(--r3ip-ink);
+  color: var(--r3ip-surface);
+  border-radius: 3px;
+  cursor: pointer;
+}
+.r3ipBadgeRemove svg {
+  width: 11px;
+  height: 11px;
+}
+.r3ipBadge:hover .r3ipBadgeIcon {
+  opacity: 0;
+}
+.r3ipBadge:hover .r3ipBadgeRemove {
+  opacity: 1;
+}
+.r3ipBadgeRemove:focus-visible {
+  opacity: 1;
+  outline: 2px solid var(--r3ip-accent);
+  outline-offset: 1px;
+}
+
 .r3ipChevron {
   display: flex;
   align-items: center;
   color: var(--r3ip-muted);
   flex-shrink: 0;
-  transition: transform 0.15s ease;
+  transition: transform 0.18s ease;
 }
 .r3ipChevron svg {
-  width: 13px;
-  height: 13px;
+  width: 12px;
+  height: 12px;
 }
 .r3ipChevron.open {
   transform: rotate(180deg);
@@ -94,8 +145,8 @@
   justify-content: center;
   color: var(--r3ip-muted);
   cursor: pointer;
-  width: 18px;
-  height: 18px;
+  width: 14px;
+  height: 14px;
   border-radius: 3px;
   flex-shrink: 0;
 }
@@ -106,8 +157,8 @@
 }
 .r3ipClearAll svg,
 .r3ipClear svg {
-  width: 12px;
-  height: 12px;
+  width: 11px;
+  height: 11px;
 }
 .r3ipClearAll:focus-visible,
 .r3ipClear:focus-visible {
@@ -118,7 +169,21 @@
   margin-left: auto;
 }
 
+/* Floats below the trigger with a gap (not fused to its bottom edge) and
+ * carries its own border/radius/shadow on all four corners, matching the
+ * mockup's .picker-panel - the search bar, meta line, grid and empty state
+ * are borderless sections inside this one box. */
 .r3ipDropdown {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: calc(100% + 6px);
+  z-index: 4;
+  background-color: var(--r3ip-surface);
+  border: 1px solid var(--r3ip-line);
+  border-radius: var(--r3ip-radius);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
   opacity: 0;
   visibility: hidden;
   transition:
@@ -135,17 +200,8 @@
 
 .r3ipCustomSelect .r3ipItems {
   color: var(--r3ip-ink);
-  border-radius: 0 0 4px 4px;
-  overflow: hidden;
-  border: 1px solid var(--r3ip-line);
-  border-top: none;
-  position: absolute;
-  background-color: var(--r3ip-surface);
-  left: 0;
-  right: 0;
-  z-index: 1;
-  max-height: 216px;
-  box-shadow: 0 6px 16px rgba(17, 17, 20, 0.08);
+  max-height: 168px;
+  overflow-y: auto;
 }
 
 .r3ipGridItem {
@@ -157,7 +213,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 34px;
+  height: 30px;
   border-radius: 3px;
 }
 
@@ -172,7 +228,7 @@
 
 .r3ipGridItem.active {
   box-shadow: inset 0 0 0 1.5px var(--r3ip-accent);
-  background-color: var(--selected-icon-bg-color, #e8edfc);
+  background-color: var(--selected-icon-bg-color, transparent);
 }
 
 .r3ipSearch {
@@ -180,17 +236,14 @@
   display: flex;
   align-items: center;
   position: relative;
-  z-index: 1;
-  border: 1px solid var(--r3ip-line);
-  border-top: none;
-  background: var(--r3ip-surface);
+  border-bottom: 1px solid var(--r3ip-line);
 }
 
 .r3ipSearchIcon {
   position: absolute;
-  left: 9px;
-  width: 13px;
-  height: 13px;
+  left: 8px;
+  width: 12px;
+  height: 12px;
   color: var(--r3ip-muted);
   pointer-events: none;
 }
@@ -198,12 +251,12 @@
 .r3ipSearch input {
   width: 100%;
   border-radius: 0;
-  line-height: 28px;
   border: none;
-  padding: 0 28px 0 28px;
+  padding: 7px 28px;
   background: transparent;
   color: var(--r3ip-ink);
   font: inherit;
+  font-size: 12px;
 }
 
 .r3ipSearch input:focus-visible {
@@ -218,34 +271,23 @@
   padding: 5px 10px;
   font-size: 11px;
   color: var(--r3ip-muted);
-  background: var(--r3ip-surface);
-  border-left: 1px solid var(--r3ip-line);
-  border-right: 1px solid var(--r3ip-line);
-  position: relative;
-  z-index: 1;
   font-variant-numeric: tabular-nums;
 }
 
 .r3ipEmpty {
-  border-radius: 0 0 4px 4px;
-  border: 1px solid var(--r3ip-line);
-  border-top: none;
-  background-color: var(--r3ip-surface);
-  padding: 22px 10px;
-  position: relative;
-  z-index: 1;
-  box-shadow: 0 6px 16px rgba(17, 17, 20, 0.08);
+  padding: 20px 12px;
+  color: var(--r3ip-muted);
+  font-size: 11px;
 }
 
 .r3ipEmpty > .defaultText {
   text-align: center;
-  color: var(--r3ip-muted);
 }
 
 /* Dark theme */
 .r3ipDark.r3ipCustomSelect {
   --r3ip-surface: #18181b;
-  --r3ip-ground: #232327;
+  --r3ip-ground: #0e0e10;
   --r3ip-ink: #f2f2f3;
   --r3ip-muted: #97979d;
   --r3ip-line: #2c2c31;

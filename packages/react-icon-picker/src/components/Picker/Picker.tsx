@@ -23,7 +23,7 @@ const Picker: React.FC<IconPickerProps> = ({
   placeholder,
   multiple = false,
   iconLibrary,
-  selectedIconBgColor = '#e8edfc',
+  selectedIconBgColor = 'transparent',
   selectedIconColor = '#2b5fe0',
   displaySearch = true,
   multipleLimit = Infinity,
@@ -256,7 +256,7 @@ const Picker: React.FC<IconPickerProps> = ({
   // columns, noticeably busier than the approved design).
   const columnCount = scrollerWidth ? Math.max(3, Math.min(6, Math.floor(scrollerWidth / 50))) : 6
   const columnWidth = scrollerWidth / columnCount || 50
-  const rowHeight = 34
+  const rowHeight = 30
   const rowCount = Math.ceil(filteredIcons.length / columnCount)
 
   const Cell = ({ ariaAttributes, columnIndex, rowIndex, style }: CellComponentProps) => {
@@ -276,13 +276,13 @@ const Picker: React.FC<IconPickerProps> = ({
         onClick={() => onGridItemSelected(item)}>
         <ItemIcon
           data={item.name}
-          size={18}
+          size={14}
           color={
             isGridIconSelected(item)
               ? selectedIconColor
               : theme === 'dark'
-                ? '#e5e7eb'
-                : '#222'
+                ? '#f2f2f3'
+                : '#111114'
           }
         />
       </button>
@@ -315,17 +315,24 @@ const Picker: React.FC<IconPickerProps> = ({
                   value.map((val, i) => (
                     <React.Fragment key={i}>
                       {i < selectedItemsToDisplay && (
-                        <div className={styles.item}>
+                        <span className={styles.r3ipBadge}>
                           <ItemIcon
+                            className={styles.r3ipBadgeIcon}
                             data={val}
-                            size={18}
-                            color={theme === 'dark' ? '#e5e7eb' : '#222'}
-                            onClick={(e: React.MouseEvent) => {
+                            size={12}
+                            color={theme === 'dark' ? '#f2f2f3' : '#111114'}
+                          />
+                          <button
+                            type="button"
+                            className={styles.r3ipBadgeRemove}
+                            title="Remove"
+                            onClick={(e) => {
                               e.stopPropagation()
                               onBadgeRemove(val)
-                            }}
-                          />
-                        </div>
+                            }}>
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                          </button>
+                        </span>
                       )}
                     </React.Fragment>
                   ))}
@@ -348,15 +355,24 @@ const Picker: React.FC<IconPickerProps> = ({
                 )}
               </div>
             ) : (
-              <ItemIcon
-                data={value as string}
-                size={18}
-                color={theme === 'dark' ? '#e5e7eb' : '#222'}
-                onClick={(e: React.MouseEvent) => {
-                  e.stopPropagation()
-                  onBadgeRemove(value as string)
-                }}
-              />
+              <span className={styles.r3ipBadge}>
+                <ItemIcon
+                  className={styles.r3ipBadgeIcon}
+                  data={value as string}
+                  size={12}
+                  color={theme === 'dark' ? '#f2f2f3' : '#111114'}
+                />
+                <button
+                  type="button"
+                  className={styles.r3ipBadgeRemove}
+                  title="Remove"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    onBadgeRemove(value as string)
+                  }}>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
+              </span>
             )}
           </>
         ) : (
