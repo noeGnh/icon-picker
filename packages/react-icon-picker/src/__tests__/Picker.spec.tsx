@@ -1,7 +1,5 @@
 import { fireEvent, render, waitFor } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
-
-import Picker from '../components/Picker/Picker'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 // react-window measures real DOM layout to decide how many cells to render,
 // which jsdom always reports as zero. Since the virtualization itself isn't
@@ -29,69 +27,118 @@ vi.mock('react-window', () => ({
   },
 }))
 
-const ICON_SVG = '<svg><circle r="5"/></svg>'
+const { loadIconMock, buildIconMock } = vi.hoisted(() => ({
+  loadIconMock: vi.fn(),
+  buildIconMock: vi.fn(),
+}))
 
-describe('Picker selection', () => {
-  let pendingIconFetches: Array<(value: Response) => void>
+// Stub the official Icon component so grid cells never make a real network call.
+vi.mock('@iconify/react', () => ({
+  Icon: ({ icon }: { icon: string }) => <span className="iconify-stub" data-icon={icon} />,
+  loadIcon: loadIconMock,
+  buildIcon: buildIconMock,
+}))
 
+const { searchIconsMock } = vi.hoisted(() => ({ searchIconsMock: vi.fn() }))
+
+vi.mock('@arkn/icon-picker-core', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@arkn/icon-picker-core')>()
+  return { ...actual, searchIcons: searchIconsMock }
+})
+
+import Picker from '../components/Picker/Picker'
+
+const SEARCH_RESULTS = [{ name: 'tabler:home', prefix: 'tabler', icon: 'home' }]
+
+async function search(container: HTMLElement, query: string) {
+  const input = container.querySelector('input[name="search"]') as HTMLInputElement
+  fireEvent.change(input, { target: { value: query } })
+  await waitFor(() => expect(searchIconsMock).toHaveBeenCalled())
+}
+
+async function findGridCell(container: HTMLElement) {
+  return waitFor(() => {
+    const el = container.querySelector('[class*="r3ipGridItem"]')
+    expect(el).not.toBeNull()
+    return el as Element
+  })
+}
+
+describe('Picker search + selection', () => {
   beforeEach(() => {
-    localStorage.clear()
-    pendingIconFetches = []
-
-    vi.stubGlobal(
-      'fetch',
-      vi.fn((url: string) => {
-        if (url.includes('icons-list.json')) {
-          return Promise.resolve({ ok: true, json: async () => ['fa_HomeOutline'] } as Response)
-        }
-
-        // Individual icon SVGs never resolve on their own in this test -
-        // resolution is driven explicitly via resolvePendingIconFetches().
-        return new Promise<Response>((resolve) => {
-          pendingIconFetches.push(resolve)
-        })
-      })
-    )
+    searchIconsMock.mockReset().mockResolvedValue(SEARCH_RESULTS)
+    loadIconMock.mockReset()
+    buildIconMock.mockReset()
   })
 
-  afterEach(() => {
-    vi.unstubAllGlobals()
+  it('debounces then calls searchIcons with the typed query', async () => {
+    const { container } = render(<Picker value={null} onChange={vi.fn()} />)
+    await search(container, 'home')
+
+    expect(searchIconsMock).toHaveBeenCalledWith('home', { prefixes: undefined })
+    await findGridCell(container)
   })
 
-  function resolvePendingIconFetches() {
-    const resolvers = pendingIconFetches.splice(0)
-    resolvers.forEach((resolve) => resolve({ ok: true, text: async () => ICON_SVG } as Response))
-  }
-
-  it('resolves a defined value even when clicked before its icon has finished loading', async () => {
-    const onChange = vi.fn()
+  it('restricts the search to the given iconLibrary prefixes', async () => {
     const { container } = render(
-      <Picker value={null} onChange={onChange} iconLibrary="all" />
+      <Picker value={null} onChange={vi.fn()} iconLibrary={['tabler', 'carbon']} />
     )
+    await search(container, 'home')
 
-    // Wait for the icons list fetch (prepareData) to resolve and the grid to render.
-    const cell = await waitFor(() => {
-      const el = container.querySelector('[class*="r3ipGridItem"]')
-      expect(el).not.toBeNull()
-      return el!
+    expect(searchIconsMock).toHaveBeenCalledWith('home', { prefixes: ['tabler', 'carbon'] })
+  })
+
+  it('name mode (default): selecting an icon calls onChange with its identifier directly', async () => {
+    const onChange = vi.fn()
+    const { container } = render(<Picker value={null} onChange={onChange} />)
+    await search(container, 'home')
+
+    fireEvent.click(await findGridCell(container))
+
+    await waitFor(() => expect(onChange).toHaveBeenCalledWith('tabler:home'))
+    expect(loadIconMock).not.toHaveBeenCalled()
+  })
+
+  it('svg mode: does not call onChange until the icon has finished resolving (race-condition guard)', async () => {
+    let resolveLoad!: (value: unknown) => void
+    loadIconMock.mockReturnValue(new Promise((resolve) => (resolveLoad = resolve)))
+    buildIconMock.mockReturnValue({
+      attributes: { viewBox: '0 0 24 24' },
+      body: '<path d="M0 0"/>',
     })
 
-    // At this point the grid cell's own background fetch (via the nested
-    // Icon component) is already pending and unresolved.
-    expect(pendingIconFetches.length).toBeGreaterThan(0)
+    const onChange = vi.fn()
+    const { container } = render(<Picker value={null} onChange={onChange} valueType="svg" />)
+    await search(container, 'home')
 
-    fireEvent.click(cell)
-
-    // Selection isn't synchronous anymore (resolveIconValue awaits its own
-    // fetch on a cache miss), so nothing should be called yet.
+    fireEvent.click(await findGridCell(container))
     expect(onChange).not.toHaveBeenCalled()
 
-    resolvePendingIconFetches()
+    resolveLoad({})
 
     await waitFor(() => expect(onChange).toHaveBeenCalled())
+    expect(onChange.mock.calls[0][0]).toContain('path')
+  })
 
-    const value = onChange.mock.calls[0][0]
-    expect(typeof value).toBe('string')
-    expect(value).toContain('circle')
+  it('multi-select: toggles an icon off when clicked again', async () => {
+    const onChange = vi.fn()
+    const { container } = render(
+      <Picker value={['tabler:home']} onChange={onChange} multiple />
+    )
+    await search(container, 'home')
+
+    fireEvent.click(await findGridCell(container))
+
+    await waitFor(() => expect(onChange).toHaveBeenCalledWith([]))
+  })
+
+  it('shows emptyText when the query has no results', async () => {
+    searchIconsMock.mockResolvedValue([])
+    const { container, getByText } = render(
+      <Picker value={null} onChange={vi.fn()} emptyText="No icons" />
+    )
+    await search(container, 'zzz')
+
+    await waitFor(() => expect(getByText('No icons')).toBeTruthy())
   })
 })
