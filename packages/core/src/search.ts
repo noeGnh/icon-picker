@@ -1,3 +1,4 @@
+import { DEFAULT_ICONIFY_API_BASE } from './constants'
 import type { IconResult } from './types'
 
 export interface SearchIconsOptions {
@@ -8,7 +9,6 @@ export interface SearchIconsOptions {
   apiBase?: string
 }
 
-const DEFAULT_API_BASE = 'https://api.iconify.design'
 const DEFAULT_LIMIT = 64
 
 /**
@@ -22,7 +22,7 @@ export async function searchIcons(
   const trimmed = query.trim()
   if (!trimmed) return []
 
-  const { prefixes, limit = DEFAULT_LIMIT, apiBase = DEFAULT_API_BASE } = options
+  const { prefixes, limit = DEFAULT_LIMIT, apiBase = DEFAULT_ICONIFY_API_BASE } = options
 
   const params = new URLSearchParams({ query: trimmed, limit: String(limit) })
   if (prefixes && prefixes.length) {
