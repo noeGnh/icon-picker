@@ -1,0 +1,92 @@
+{
+  "name": "@arkn/react-icon-picker",
+  "description": "React Icon Picker",
+  "version": "0.0.2",
+  "private": false,
+  "author": "Noé Gnanih <noegnanih@gmail.com>",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/index.cjs",
+  "module": "dist/index.mjs",
+  "exports": {
+    ".": {
+      "types": "./types/index.d.ts",
+      "import": "./dist/index.mjs",
+      "require": "./dist/index.cjs"
+    },
+    "./*": "./*"
+  },
+  "typings": "types/index.d.ts",
+  "files": [
+    "dist",
+    "types",
+    "README.md"
+  ],
+  "scripts": {
+    "dev-server": "pnpm --parallel vite",
+    "dev-types": "tsc  --noEmit -p tsconfig.app.json --watch",
+    "build": "pnpm build-lib && pnpm build-types",
+    "build-lib": "vite build",
+    "build-types": "rm -f *.tsbuildinfo && rm -rf types && tsc --emitDeclarationOnly --declaration -p tsconfig.app.json",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test-ci": "vitest --run",
+    "version": "auto-changelog --template keepachangelog --hide-credit -p && git add CHANGELOG.md",
+    "load-icon-assets": "tsx scripts/load-icon-assets.ts"
+  },
+  "peerDependencies": {
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6"
+  },
+  "dependencies": {
+    "lodash.uniqby": "^4.7.0",
+    "react-window": "^2.2.7"
+  },
+  "devDependencies": {
+    "@sicons/antd": "^0.13.0",
+    "@sicons/carbon": "^0.13.0",
+    "@sicons/fa": "^0.13.0",
+    "@sicons/fluent": "^0.13.0",
+    "@sicons/ionicons4": "^0.13.0",
+    "@sicons/ionicons5": "^0.13.0",
+    "@sicons/material": "^0.13.0",
+    "@sicons/tabler": "^0.13.0",
+    "@types/lodash.uniqby": "^4.7.9",
+    "@types/node": "^26.1.2",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.1.6",
+    "@types/react-window": "^2.0.0",
+    "@vitejs/plugin-react": "^6.0.2",
+    "auto-changelog": "^2.5.1",
+    "glob": "^13.0.6",
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "svgo": "^4.0.1",
+    "terser": "^5.47.1",
+    "tsx": "^4.23.1",
+    "typescript": "~6.0.3",
+    "vite": "^8.0.14",
+    "vitest": "^4.1.10"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/noeGnh/react-icon-picker.git"
+  },
+  "keywords": [
+    "react",
+    "icon",
+    "picker",
+    "icon-picker",
+    "component",
+    "ui",
+    "typescript"
+  ],
+  "bugs": {
+    "url": "https://github.com/noeGnh/react-icon-picker/issues"
+  },
+  "homepage": "https://github.com/noeGnh/react-icon-picker#readme",
+  "publishConfig": {
+    "access": "public"
+  }
+}

@@ -1,0 +1,265 @@
+.r3ipCustomSelect {
+  position: relative;
+  width: 100%;
+  text-align: left;
+  outline: none;
+  min-width: 200px;
+}
+
+.r3ipCustomSelect .r3ipSelected {
+  background-color: #fff;
+  border-radius: 6px;
+  border: 1px solid rgb(224, 224, 230);
+  color: #333639;
+  padding-left: 1em;
+  padding-right: 1.4em;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+}
+
+.r3ipCustomSelect.r3ipSmall {
+  height: 24px;
+  line-height: 24px;
+}
+
+.r3ipCustomSelect.r3ipSmall .r3ipSelected {
+  min-height: 24px;
+}
+
+.r3ipCustomSelect.r3ipMedium {
+  height: 34px;
+  line-height: 34px;
+}
+
+.r3ipCustomSelect.r3ipMedium .r3ipSelected {
+  min-height: 34px;
+}
+
+.r3ipCustomSelect.r3ipLarge {
+  height: 40px;
+  line-height: 40px;
+}
+
+.r3ipCustomSelect.r3ipLarge .r3ipSelected {
+  min-height: 40px;
+}
+
+.r3ipCustomSelect .r3ipSelected .multiple {
+  align-items: center;
+  display: flex;
+}
+
+.r3ipCustomSelect .r3ipSelected .multiple .item {
+  display: flex;
+  margin-right: 10px;
+}
+
+.r3ipCustomSelect .r3ipSelected .placeholder {
+  color: silver;
+}
+
+.r3ipCustomSelect .r3ipSelected.open {
+  border: 1px solid #c2c2c2;
+  border-radius: 6px 6px 0px 0px;
+}
+
+.r3ipCustomSelect .r3ipSelected.open:after {
+  transform: rotate(180deg);
+}
+
+.r3ipCustomSelect.r3ipSmall .r3ipSelected.open:after {
+  top: 5px;
+}
+
+.r3ipCustomSelect.r3ipMedium .r3ipSelected.open:after {
+  top: 10px;
+}
+
+.r3ipCustomSelect.r3ipLarge .r3ipSelected.open:after {
+  top: 14px;
+}
+
+.r3ipCustomSelect .r3ipSelected:after {
+  position: absolute;
+  content: '';
+  right: 1em;
+  width: 0;
+  height: 0;
+  border: 5px solid transparent;
+  border-color: #333639 transparent transparent transparent;
+  transition: transform 0.2s ease;
+}
+
+.r3ipCustomSelect.r3ipSmall .r3ipSelected:after {
+  top: 12px;
+}
+
+.r3ipCustomSelect.r3ipMedium .r3ipSelected:after {
+  top: 16px;
+}
+
+.r3ipCustomSelect.r3ipLarge .r3ipSelected:after {
+  top: 20px;
+}
+
+.r3ipCustomSelect .r3ipSelected.disabled {
+  cursor: default;
+  background-color: whitesmoke;
+}
+
+.r3ipDropdown {
+  opacity: 0;
+  visibility: hidden;
+  transition:
+    opacity 0.25s ease,
+    visibility 0.25s ease;
+  pointer-events: none;
+}
+
+.r3ipDropdown.r3ipDropdownOpen {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+}
+
+.r3ipCustomSelect .r3ipItems {
+  color: #222;
+  border-radius: 0px 0px 6px 6px;
+  overflow: hidden;
+  border-right: 1px solid #c2c2c2;
+  border-left: 1px solid #c2c2c2;
+  border-bottom: 1px solid #c2c2c2;
+  position: absolute;
+  background-color: #fff;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  max-height: 225px;
+}
+
+.r3ipGridItem {
+  color: #222;
+  cursor: pointer;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px;
+  box-sizing: border-box;
+}
+
+.r3ipGridItem:hover {
+  background-color: rgb(243, 243, 245);
+}
+
+.r3ipGridItem.active {
+  background-color: var(--selected-icon-bg-color, #d3d3d3);
+}
+
+.r3ipSearch {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  position: relative;
+  z-index: 1;
+}
+
+.r3ipSearch input,
+.r3ipSearch input:focus-visible {
+  width: 100%;
+  border-radius: 0;
+  line-height: 30px;
+  border: 0.5px solid #c2c2c2;
+  border-top: none;
+  padding-right: 1em;
+  padding-left: 1em;
+  background: #fff;
+}
+
+.r3ipSearch input:focus-visible {
+  border: 0.5px solid #c2c2c2;
+  border-top: none;
+  outline: 0;
+}
+
+.r3ipSearch input::placeholder {
+  color: #c2c2c2;
+}
+
+.r3ipEmpty {
+  border-radius: 0px 0px 6px 6px;
+  border-right: 1px solid #c2c2c2;
+  border-left: 1px solid #c2c2c2;
+  border-bottom: 1px solid #c2c2c2;
+  background-color: #fff;
+  padding-bottom: 5px;
+  padding-top: 5px;
+  position: relative;
+  z-index: 1;
+}
+
+.r3ipEmpty > .defaultText {
+  text-align: center;
+}
+
+/* Dark theme */
+.r3ipDark.r3ipCustomSelect .r3ipSelected {
+  background-color: #1f1f23;
+  border-color: #3a3a3f;
+  color: #e5e7eb;
+}
+
+.r3ipDark.r3ipCustomSelect .r3ipSelected .placeholder {
+  color: #9ca3af;
+}
+
+.r3ipDark.r3ipCustomSelect .r3ipSelected.open {
+  border-color: #52525b;
+}
+
+.r3ipDark.r3ipCustomSelect .r3ipSelected:after {
+  border-color: #e5e7eb transparent transparent transparent;
+}
+
+.r3ipDark.r3ipCustomSelect .r3ipSelected.disabled {
+  background-color: #2a2a2e;
+  color: #6b7280;
+  cursor: not-allowed;
+}
+
+.r3ipDark.r3ipCustomSelect .r3ipItems {
+  background-color: #1f1f23;
+  border-color: #3a3a3f;
+  color: #e5e7eb;
+}
+
+.r3ipDark.r3ipCustomSelect .r3ipGridItem {
+  color: #e5e7eb;
+}
+
+.r3ipDark.r3ipCustomSelect .r3ipGridItem:hover {
+  background-color: #2a2a2e;
+}
+
+.r3ipDark.r3ipCustomSelect .r3ipGridItem.active {
+  background-color: var(--selected-icon-bg-color, #d3d3d3);
+}
+
+.r3ipDark .r3ipSearch input,
+.r3ipDark .r3ipSearch input:focus-visible {
+  background-color: #1f1f23;
+  border-color: #3a3a3f;
+  color: #e5e7eb;
+}
+
+.r3ipDark .r3ipSearch input::placeholder {
+  color: #9ca3af;
+}
+
+.r3ipDark .r3ipEmpty {
+  background-color: #1f1f23;
+  border-color: #3a3a3f;
+  color: #9ca3af;
+}

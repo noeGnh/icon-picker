@@ -8,13 +8,21 @@
     {
       "path": "./tsconfig.config.json"
     },
-    // Plugin
+    // Vue plugin
     {
       "path": "./packages/vue3-icon-picker/tsconfig.app.json"
     },
-    // Playground
+    // Vue playground
     {
-      "path": "./packages/playground/tsconfig.app.json"
+      "path": "./packages/playground-vue/tsconfig.app.json"
+    },
+    // React plugin
+    {
+      "path": "./packages/react-icon-picker/tsconfig.json"
+    },
+    // React playground
+    {
+      "path": "./packages/playground-react/tsconfig.json"
     }
   ]
 }

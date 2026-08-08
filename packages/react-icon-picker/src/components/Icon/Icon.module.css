@@ -1,0 +1,7 @@
+.reactIconPickerIcon svg {
+  display: block;
+  width: var(--icon-size, 24px);
+  height: var(--icon-size, 24px);
+  color: var(--icon-color);
+  fill: var(--icon-color);
+}

@@ -6,15 +6,17 @@
     "node": true
   },
   "extends": [
-    "plugin:vue/vue3-recommended",
     "eslint:recommended",
+    "plugin:vue/vue3-recommended",
     "@vue/typescript/recommended",
-
     "prettier"
   ],
   "parserOptions": {
     "parser": "@typescript-eslint/parser",
-    "ecmaVersion": 2021
+    "ecmaVersion": 2021,
+    "ecmaFeatures": {
+      "jsx": true
+    }
   },
   "rules": {
     "no-var": "off",
@@ -25,6 +27,9 @@
     "@typescript-eslint/no-explicit-any": "off"
   },
   "settings": {
+    "react": {
+      "version": "detect"
+    },
     "import/resolver": {
       "typescript": {}
     }
@@ -34,6 +39,17 @@
       "files": ["packages/*/src/**/*.vue"],
       "env": {
         "node": false
+      }
+    },
+    {
+      "files": ["packages/*/src/**/*.tsx"],
+      "env": {
+        "node": false
+      },
+      "extends": ["plugin:react/recommended", "plugin:react-hooks/recommended"],
+      "rules": {
+        "react/react-in-jsx-scope": "off",
+        "react/prop-types": "off"
       }
     }
   ]

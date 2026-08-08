@@ -2,10 +2,12 @@ packages:
   - packages/*
 
 allowBuilds:
+  '@swc/core': true
   esbuild: true
   unrs-resolver: true
 
 onlyBuiltDependencies:
+  - '@swc/core'
   - esbuild
   - unrs-resolver
   - vue-demi

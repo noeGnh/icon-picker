@@ -1,0 +1,28 @@
+{
+  "name": "docs-react",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Plugin docs",
+  "author": "Noé Gnanih <noegnanih@gmail.com>",
+  "homepage": "",
+  "license": "MIT",
+  "main": "index.ts",
+  "directories": {
+    "plugin": "react-icon-picker",
+    "test": "__tests__"
+  },
+  "files": [
+    "react-icon-picker"
+  ],
+  "scripts": {
+    "dev": "vitepress dev .",
+    "build": "vitepress build .",
+    "lint": "eslint '.vitepress/**/*.{ts,tsx}'"
+  },
+  "dependencies": {
+    "@arkn/react-icon-picker": "workspace:*"
+  },
+  "devDependencies": {
+    "vitepress": "^1.6.4"
+  }
+}

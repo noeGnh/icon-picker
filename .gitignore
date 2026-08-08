@@ -2,7 +2,7 @@
 node_modules/
 dist/
 
-packages/docs/.vitepress/cache
+packages/docs-*/.vitepress/cache
 packages/*/dist
 packages/*/types
 *.tsbuildinfo
@@ -25,5 +25,5 @@ yarn-error.log*
 *.sln
 *.sw*
 
-docs/package-lock.json
-docs/.vitepress/dist
+docs-*/package-lock.json
+docs-*/.vitepress/dist
