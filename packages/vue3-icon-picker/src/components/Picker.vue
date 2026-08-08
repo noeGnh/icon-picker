@@ -399,9 +399,9 @@
     outline-offset: 1px;
   }
 
-  .v3ip__custom-select.v3ip__small { min-height: 26px; }
-  .v3ip__custom-select.v3ip__medium { min-height: 32px; }
-  .v3ip__custom-select.v3ip__large { min-height: 40px; }
+  .v3ip__custom-select.v3ip__small .v3ip__selected { min-height: 26px; }
+  .v3ip__custom-select.v3ip__medium .v3ip__selected { min-height: 32px; }
+  .v3ip__custom-select.v3ip__large .v3ip__selected { min-height: 40px; }
 
   .v3ip__custom-select .v3ip__selected .multiple {
     align-items: center;
