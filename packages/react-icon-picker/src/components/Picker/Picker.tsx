@@ -83,11 +83,15 @@ const Picker: React.FC<IconPickerProps> = ({
     }
   }, [open])
 
-  const normalizedPrefixes = iconLibrary
+  // An empty array (e.g. every library toggle deselected) means "no
+  // restriction", same as omitting the prop - [] is truthy in JS, so
+  // `iconLibrary ? ... : undefined` alone doesn't catch it.
+  const normalizedPrefixesList = iconLibrary
     ? Array.isArray(iconLibrary)
       ? iconLibrary
       : [iconLibrary]
-    : undefined
+    : []
+  const normalizedPrefixes = normalizedPrefixesList.length ? normalizedPrefixesList : undefined
 
   // Stable for the component's lifetime so clearing the search box doesn't
   // re-randomize the default set shown.

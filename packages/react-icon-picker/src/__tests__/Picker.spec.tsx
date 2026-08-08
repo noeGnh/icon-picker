@@ -184,6 +184,15 @@ describe('Picker search + selection', () => {
       expect(browseCollectionMock).toHaveBeenCalledWith('tabler')
     })
 
+    it('treats an empty iconLibrary array the same as no restriction (regression: [] is truthy in JS)', async () => {
+      const { container } = render(<Picker value={null} onChange={vi.fn()} iconLibrary={[]} />)
+      await findGridCell(container)
+
+      expect(pickRandomPrefixMock).toHaveBeenCalled()
+      expect(browseCollectionMock).toHaveBeenCalledWith('tabler')
+      expect(browseCollectionsMock).not.toHaveBeenCalled()
+    })
+
     it('browses the given collection when iconLibrary is a single prefix', async () => {
       const { container } = render(<Picker value={null} onChange={vi.fn()} iconLibrary="carbon" />)
       await findGridCell(container)

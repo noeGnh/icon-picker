@@ -168,10 +168,18 @@ describe('Picker search + selection', () => {
 
   describe('default icons (before typing anything)', () => {
     it('browses a random prefix when no iconLibrary is set', async () => {
-      const wrapper = await mountAndWaitForDefaults({ modelValue: null })
+      await mountAndWaitForDefaults({ modelValue: null })
 
       expect(pickRandomPrefixMock).toHaveBeenCalled()
       expect(browseCollectionMock).toHaveBeenCalledWith('tabler')
+    })
+
+    it('treats an empty iconLibrary array the same as no restriction (regression: [] is truthy in JS)', async () => {
+      const wrapper = await mountAndWaitForDefaults({ modelValue: null, iconLibrary: [] })
+
+      expect(pickRandomPrefixMock).toHaveBeenCalled()
+      expect(browseCollectionMock).toHaveBeenCalledWith('tabler')
+      expect(browseCollectionsMock).not.toHaveBeenCalled()
       expect(wrapper.find('.v3ip__items > div').exists()).toBe(true)
     })
 

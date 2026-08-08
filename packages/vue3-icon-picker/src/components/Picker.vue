@@ -73,7 +73,11 @@
 
   const normalizedPrefixes = computed(() => {
     if (!props.iconLibrary) return undefined
-    return Array.isArray(props.iconLibrary) ? props.iconLibrary : [props.iconLibrary]
+    const list = Array.isArray(props.iconLibrary) ? props.iconLibrary : [props.iconLibrary]
+    // An empty array (e.g. every library toggle deselected) means "no
+    // restriction", same as omitting the prop - [] is truthy in JS, so
+    // `!props.iconLibrary` alone doesn't catch it.
+    return list.length ? list : undefined
   })
 
   const applyLocalFilters = (results: IconResult[]) => {

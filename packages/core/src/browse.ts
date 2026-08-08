@@ -2,12 +2,11 @@ import { DEFAULT_BROWSABLE_PREFIXES, DEFAULT_ICONIFY_API_BASE } from './constant
 import type { IconResult } from './types'
 
 export interface BrowseCollectionOptions {
+  /** Caps the number of icons returned. Unset by default - the whole collection is returned (virtualized rendering handles large lists fine, and this matches browsing a full library like before the Iconify migration). */
   limit?: number
   /** Override the Iconify API base URL, e.g. to point at a self-hosted instance. */
   apiBase?: string
 }
-
-const DEFAULT_BROWSE_LIMIT = 60
 
 interface CollectionResponse {
   uncategorized?: string[]
@@ -17,14 +16,14 @@ interface CollectionResponse {
 /**
  * Lists icons from a single Iconify collection, for showing a default set of
  * icons before the user has typed a search query. The Iconify API doesn't
- * support a `limit` on this endpoint (it always returns the full collection,
- * which can be thousands of icons) - this slices client-side instead.
+ * support a `limit` on this endpoint (it always returns the full collection) -
+ * this slices client-side instead, only when a `limit` is explicitly given.
  */
 export async function browseCollection(
   prefix: string,
   options: BrowseCollectionOptions = {}
 ): Promise<IconResult[]> {
-  const { limit = DEFAULT_BROWSE_LIMIT, apiBase = DEFAULT_ICONIFY_API_BASE } = options
+  const { limit, apiBase = DEFAULT_ICONIFY_API_BASE } = options
 
   try {
     const response = await fetch(`${apiBase}/collection?prefix=${encodeURIComponent(prefix)}`)
@@ -35,7 +34,9 @@ export async function browseCollection(
       ...Object.values(data.categories ?? {}).flat(),
     ]
 
-    return names.slice(0, limit).map((icon) => ({ name: `${prefix}:${icon}`, prefix, icon }))
+    const sliced = typeof limit === 'number' ? names.slice(0, limit) : names
+
+    return sliced.map((icon) => ({ name: `${prefix}:${icon}`, prefix, icon }))
   } catch (error) {
     console.error(`Failed to browse collection ${prefix}`, error)
     return []
@@ -44,8 +45,8 @@ export async function browseCollection(
 
 /**
  * Lists icons from several collections at once (the Iconify API only takes
- * one prefix per request), splitting `limit` evenly between them so the
- * combined total stays predictable regardless of how many prefixes are given.
+ * one prefix per request). When `limit` is given, it's split evenly between
+ * prefixes so the combined total stays predictable.
  */
 export async function browseCollections(
   prefixes: string[],
@@ -53,8 +54,10 @@ export async function browseCollections(
 ): Promise<IconResult[]> {
   if (!prefixes.length) return []
 
-  const totalLimit = options.limit ?? DEFAULT_BROWSE_LIMIT
-  const perPrefixLimit = Math.max(1, Math.floor(totalLimit / prefixes.length))
+  const perPrefixLimit =
+    typeof options.limit === 'number'
+      ? Math.max(1, Math.floor(options.limit / prefixes.length))
+      : undefined
 
   const results = await Promise.all(
     prefixes.map((prefix) => browseCollection(prefix, { ...options, limit: perPrefixLimit }))
