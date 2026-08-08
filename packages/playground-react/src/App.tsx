@@ -47,68 +47,83 @@ const App: React.FC = () => {
   }
 
   return (
-    <section className="container">
-      <h2>D E M O</h2>
+    <div className={`playground ${darkMode ? 'dark' : ''}`}>
+      <section className="playground-card">
+        <p className="eyebrow">@arkn/react-icon-picker</p>
+        <h1>Playground</h1>
 
-      <h4>Icon libraries to display</h4>
-      <div className="buttons">
-        {ICON_LIBRARIES.map((lib) => (
-          <div
-            key={lib}
-            className={`button ${isSelected(lib) ? 'selected' : ''}`}
-            onClick={() => toggleSelectedLibraries(lib)}>
-            {lib}
+        <div className="control-group">
+          <p className="control-label">Libraries</p>
+          <div className="chips">
+            {ICON_LIBRARIES.map((lib) => (
+              <button
+                key={lib}
+                type="button"
+                className={`chip ${isSelected(lib) ? 'selected' : ''}`}
+                onClick={() => toggleSelectedLibraries(lib)}>
+                {lib}
+              </button>
+            ))}
           </div>
-        ))}
-      </div>
+        </div>
 
-      <h4>Input sizes</h4>
-      <div className="buttons">
-        {(['small', 'medium', 'large'] as InputSize[]).map((size) => (
-          <div
-            key={size}
-            className={`button ${inputSize === size ? 'selected' : ''}`}
-            onClick={() => setInputSize(size)}>
-            {size.charAt(0).toUpperCase() + size.slice(1)}
+        <div className="control-row">
+          <div className="control-group">
+            <p className="control-label">Size</p>
+            <div className="chips">
+              {(['small', 'medium', 'large'] as InputSize[]).map((size) => (
+                <button
+                  key={size}
+                  type="button"
+                  className={`chip ${inputSize === size ? 'selected' : ''}`}
+                  onClick={() => setInputSize(size)}>
+                  {size.charAt(0).toUpperCase() + size.slice(1)}
+                </button>
+              ))}
+            </div>
           </div>
-        ))}
-      </div>
 
-      <h4>Other options</h4>
-      <div className="buttons">
-        <div
-          className={`button ${multipleSelection ? 'selected' : ''}`}
-          onClick={toggleMultipleSelection}>
-          Multiple selection
+          <div className="control-group">
+            <p className="control-label">Options</p>
+            <div className="chips">
+              <button
+                type="button"
+                className={`chip ${multipleSelection ? 'selected' : ''}`}
+                onClick={toggleMultipleSelection}>
+                Multiple
+              </button>
+              <button
+                type="button"
+                className={`chip ${darkMode ? 'selected' : ''}`}
+                onClick={toggleDarkMode}>
+                Dark mode
+              </button>
+              <button
+                type="button"
+                className={`chip ${clearable ? 'selected' : ''} ${multipleSelection ? 'disabled' : ''}`}
+                disabled={multipleSelection}
+                onClick={toggleClearable}>
+                Clearable
+              </button>
+            </div>
+          </div>
         </div>
-        <div
-          className={`button ${darkMode ? 'selected' : ''}`}
-          onClick={toggleDarkMode}>
-          Dark mode
-        </div>
-        <div
-          className={`button ${clearable ? 'selected' : ''} ${multipleSelection ? 'disabled' : ''}`}
-          onClick={toggleClearable}>
-          Make clearable
-        </div>
-      </div>
 
-      <hr />
-
-      <IconPicker
-        value={selection}
-        onChange={setSelection}
-        iconLibrary={selectedLibraries}
-        multiple={multipleSelection}
-        clearable={clearable}
-        selectedIconBgColor="#6495ED"
-        selectedIconColor="white"
-        placeholder="Select icon(s)"
-        style={{ width: '350px', marginTop: '15px' }}
-        inputSize={inputSize}
-        theme={darkMode ? 'dark' : 'light'}
-      />
-    </section>
+        <div className="picker-stage">
+          <IconPicker
+            value={selection}
+            onChange={setSelection}
+            iconLibrary={selectedLibraries}
+            multiple={multipleSelection}
+            clearable={clearable}
+            placeholder="Select icon(s)"
+            style={{ width: '100%', maxWidth: '320px' }}
+            inputSize={inputSize}
+            theme={darkMode ? 'dark' : 'light'}
+          />
+        </div>
+      </section>
+    </div>
   )
 }
 
