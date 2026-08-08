@@ -28,7 +28,7 @@ pnpm add @arkn/react-icon-picker
 
 ## About
 
-This package uses icons from [`xicons`](https://github.com/07akioni/xicons) with SVG components integrated from [`fluentui-system-icons`](https://github.com/microsoft/fluentui-system-icons), [`ionicons`](https://github.com/ionic-team/ionicons), [`ant-design-icons`](https://github.com/ant-design/ant-design-icons), [`material-design-icons`](https://github.com/google/material-design-icons), [`Font-Awesome`](https://github.com/FortAwesome/Font-Awesome), [`tabler-icons`](https://github.com/tabler/tabler-icons) and [`carbon`](https://github.com/carbon-design-system/carbon/tree/main/packages/icons). Check this website to view the icons list: [https://www.xicons.org](https://www.xicons.org).
+This package searches icons live from [Iconify](https://iconify.design) - one API, 150+ icon sets, 200,000+ icons (including Font Awesome, Material Symbols, Tabler, Carbon, Fluent, Ant Design, Ionicons and many more). Browse the full catalog at [icon-sets.iconify.design](https://icon-sets.iconify.design). Icons are loaded on demand from Iconify's public API (or your own self-hosted instance, see `iconLibrary` below) - nothing is bundled into this package.
 
 ## Usage
 
@@ -74,30 +74,28 @@ function App() {
 
 ## Props
 
-| Name                   | Type                                                                                            | Description                                                                              | Default           | Required |
-| ---------------------- | ----------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- | ----------------- | -------- |
-| value                  | string / string[] / null                                                                        | Selection, icon(s) SVG code(s) or name(s)                                                | null              | Yes      |
-| onChange               | (value: string / string[] / null) => void                                                       | Callback fired when selection changes                                                    | undefined         | Yes      |
-| placeholder            | string                                                                                          | Input placeholder                                                                        | undefined         | No       |
-| multiple               | boolean                                                                                         | Enable multiple selection when set to true                                               | false             | No       |
-| multipleLimit          | number                                                                                          | Maximum number of selections when multiple selection is enabled                          | Infinity          | No       |
-| selectedItemsToDisplay | number                                                                                          | Number of selected icons to display when multiple selection is enabled                   | 9                 | No       |
-| iconLibrary            | 'all' / 'antd' / 'carbon' / 'fa' / 'fluent' / 'ionicons4' / 'ionicons5' / 'material' / 'tabler' | Icon library to display. This property can take an array of several libraries to display | 'fa'              | No       |
-| selectedIconBgColor    | string                                                                                          | Selected icon(s) background color                                                        | '#d3d3d3'         | No       |
-| selectedIconColor      | string                                                                                          | Selected icon(s) color                                                                   | '#000000'         | No       |
-| clearable              | boolean                                                                                         | Make selected icon clearable when multiple is false                                      | false             | No       |
-| disabled               | boolean                                                                                         | Disable component                                                                        | false             | No       |
-| displaySearch          | boolean                                                                                         | Display search input                                                                     | true              | No       |
-| searchPlaceholder      | string                                                                                          | Search input placeholder                                                                 | 'Search'          | No       |
-| valueType              | 'svg' / 'name'                                                                                  | Type of selection value, icon(s) SVG code(s) or name(s)                                  | 'svg'             | No       |
-| includeIcons           | string[]                                                                                        | List of icons to include                                                                 | []                | No       |
-| excludeIcons           | string[]                                                                                        | List of icons to exclude                                                                 | []                | No       |
-| includeSearch          | string                                                                                          | The search query whose results must be included                                          | undefined         | No       |
-| excludeSearch          | string                                                                                          | The search query whose results must be excluded                                          | undefined         | No       |
-| emptyText              | string                                                                                          | Empty text                                                                               | 'Nothing to show' | No       |
-| inputSize              | 'small' / 'medium' / 'large'                                                                    | Size of input                                                                            | 'medium'          | No       |
-| theme                  | 'dark' / 'light'                                                                                | Picker theme                                                                             | 'light'           | No       |
-| emptySlot              | React.ReactNode                                                                                 | Custom content for empty state in dropdown icons list                                    | undefined         | No       |
+| Name                   | Type                                        | Description                                                                                                    | Default            | Required |
+| ---------------------- | --------------------------------------------- | ---------------------------------------------------------------------------------------------------------------- | ------------------- | -------- |
+| value                  | string / string[] / null                      | Selection: an Iconify identifier ("tabler:home") or, in `valueType: 'svg'` mode, raw SVG code                    | null                | Yes      |
+| onChange               | (value: string / string[] / null) => void     | Callback fired when selection changes                                                                             | undefined            | Yes      |
+| placeholder            | string                                        | Input placeholder                                                                                                 | undefined            | No       |
+| multiple               | boolean                                       | Enable multiple selection when set to true                                                                       | false                | No       |
+| multipleLimit          | number                                        | Maximum number of selections when multiple selection is enabled                                                  | Infinity             | No       |
+| selectedItemsToDisplay | number                                        | Number of selected icons to display when multiple selection is enabled                                           | 9                    | No       |
+| iconLibrary            | string / string[]                             | Restrict search to these [Iconify collection prefixes](https://icon-sets.iconify.design) (e.g. "tabler", "carbon"). Searches every collection when omitted | undefined            | No       |
+| selectedIconBgColor    | string                                        | Selected icon(s) background color                                                                                 | '#d3d3d3'            | No       |
+| selectedIconColor      | string                                        | Selected icon(s) color                                                                                            | '#000000'            | No       |
+| clearable              | boolean                                       | Make selected icon clearable when multiple is false                                                               | false                | No       |
+| disabled               | boolean                                       | Disable component                                                                                                 | false                | No       |
+| displaySearch          | boolean                                       | Display search input                                                                                              | true                 | No       |
+| searchPlaceholder      | string                                        | Search input placeholder                                                                                          | 'Search'             | No       |
+| valueType              | 'name' / 'svg'                                | Store the Iconify identifier (recommended) or a self-contained, portable SVG string                              | 'name'               | No       |
+| includeIcons           | string[]                                      | Only keep search results whose identifier is in this list                                                        | []                   | No       |
+| excludeIcons           | string[]                                      | Drop search results whose identifier is in this list                                                             | []                   | No       |
+| emptyText              | string                                        | Empty text                                                                                                        | 'Nothing to show'    | No       |
+| inputSize              | 'small' / 'medium' / 'large'                  | Size of input                                                                                                     | 'medium'             | No       |
+| theme                  | 'dark' / 'light'                              | Picker theme                                                                                                      | 'light'              | No       |
+| emptySlot              | React.ReactNode                               | Custom content for empty state in dropdown icons list                                                             | undefined            | No       |
 
 ## Display Icons
 
@@ -119,7 +117,7 @@ function App() {
 }
 ```
 
-Or use the custom Icon component provided by this package:
+Or, and this is required if you keep the default `valueType: 'name'` (the value is an Iconify identifier, not ready-to-render SVG), use the `Icon` component provided by this package - it renders either kind of value:
 
 ```tsx
 import { IconPicker, Icon } from '@arkn/react-icon-picker'
@@ -139,18 +137,27 @@ function App() {
 
 ### Icon Props
 
-| Name  | Type            | Description           | Default   | Required |
-| ----- | --------------- | --------------------- | --------- | -------- |
-| data  | string / null   | Icon svg code or name | undefined | Yes      |
-| size  | number / string | Icon size             | 24        | No       |
-| color | string          | Icon color            | undefined | No       |
+| Name  | Type            | Description                                       | Default   | Required |
+| ----- | --------------- | --------------------------------------------------- | --------- | -------- |
+| data  | string / null   | Iconify identifier ("tabler:home") or raw SVG code   | undefined | Yes      |
+| size  | number / string | Icon size                                          | 24        | No       |
+| color | string          | Icon color                                         | undefined | No       |
+
+## Migrating from 0.0.x
+
+- `value` is now an Iconify identifier (e.g. `"tabler:home"`) instead of this package's own encoded names (e.g. `"t_HomeOutline"`). Previously stored values will need remapping.
+- `valueType` now defaults to `'name'` instead of `'svg'`.
+- `iconLibrary` accepts any [Iconify collection prefix](https://icon-sets.iconify.design) instead of a fixed 8-value list. The closest equivalents: `antd` → `ant-design`, `material` → `material-symbols`, `ionicons4`/`ionicons5` → `ion`; `carbon`, `fa`, `fluent`, `tabler` are unchanged.
+- `includeSearch`/`excludeSearch` were removed - search is now a live query against Iconify, so there's no separate "preloaded list" to filter twice.
+- The `IconLibrary` type export was removed (no longer a closed enum).
+- The picker now requires network access to `api.iconify.design` - it no longer bundles any icon assets.
 
 ## TypeScript Support
 
 This package is written in TypeScript and provides full type definitions out of the box.
 
 ```tsx
-import type { IconLibrary, ValueType } from '@arkn/react-icon-picker'
+import type { IconResult, ValueType } from '@arkn/react-icon-picker'
 ```
 
 ## Contributing

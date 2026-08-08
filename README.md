@@ -1,6 +1,6 @@
 # icon-picker
 
-A monorepo with icon-picker component libraries for **Vue 3** and **React**, both built on the same set of icon sets ([`xicons`](https://github.com/07akioni/xicons): fluentui-system-icons, ionicons, ant-design-icons, material-design-icons, Font-Awesome, tabler-icons, carbon).
+A monorepo with icon-picker component libraries for **Vue 3** and **React**, both searching icons live from [Iconify](https://iconify.design) (150+ icon sets, 200,000+ icons). Shared search/selection/sanitization logic lives in `packages/core`, a private workspace package used by both.
 
 <p align="center">
 <img width="600" alt="Demo GIF" src="./demo.gif"/>
@@ -21,6 +21,7 @@ This monorepo uses [pnpm workspaces](https://pnpm.io/workspaces). Each package h
 
 ```text
 packages/
+├── core/                 # Shared Iconify search/selection/sanitization logic (private)
 ├── vue3-icon-picker/     # Vue 3 library
 ├── react-icon-picker/    # React library
 ├── playground-vue/       # Vue 3 dev playground
