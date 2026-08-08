@@ -44,6 +44,10 @@ export default defineConfig({
       },
     }),
   ],
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./vitest.setup.ts'],
+  },
   build: {
     lib: {
       name: 'Vue3IconPicker',

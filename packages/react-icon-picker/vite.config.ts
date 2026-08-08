@@ -16,6 +16,10 @@ export default defineConfig({
     __PKG_VERSION__: JSON.stringify(pkg.version),
   },
   plugins: [react()],
+  test: {
+    environment: 'jsdom',
+    setupFiles: ['./vitest.setup.ts'],
+  },
   build: {
     lib: {
       name: 'ReactIconPicker',

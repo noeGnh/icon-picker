@@ -51,6 +51,12 @@
         "react/react-in-jsx-scope": "off",
         "react/prop-types": "off"
       }
+    },
+    {
+      "files": ["packages/*/vitest.setup.ts"],
+      "rules": {
+        "@typescript-eslint/no-empty-function": "off"
+      }
     }
   ]
 }
