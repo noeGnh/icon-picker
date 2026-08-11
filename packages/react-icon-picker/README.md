@@ -3,7 +3,7 @@
 Icon picker component for React
 
 <p align="center">
-<img width="600" alt="Demo GIF" src="https://github.com/noeGnh/react-icon-picker/blob/master/demo.gif"/>
+<img width="600" alt="Demo GIF" src="https://github.com/noeGnh/icon-picker/blob/master/demo.gif"/>
 </p>
 
 ## Installation
@@ -33,6 +33,11 @@ This package searches icons live from [Iconify](https://iconify.design) - one AP
 Before you type anything, the picker shows a default set of icons instead of an empty state: the collection(s) given in `iconLibrary` if any, otherwise a random pick from a small curated set (Tabler, Carbon, Font Awesome, Fluent, Ionicons, Material Symbols, Ant Design).
 
 While a search or the default set is loading, a small status line briefly shows "Loading…" (it disappears once results settle - no persistent count, to stay minimal). The search box gets a clear (×) button once you've typed something, multi-select shows a clear-all button next to the selected badges, and pressing <kbd>Escape</kbd> while the dropdown is open closes it.
+
+## Demo
+
+- Vue: [live demo](https://noegnh.github.io/icon-picker/) — [source](../playground-vue)
+- React: [source](../playground-react) (run `pnpm dev-react` locally)
 
 ## Usage
 
@@ -170,11 +175,11 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## Changelog
 
-Detailed changes for each release are documented in the [release notes](https://github.com/noeGnh/react-icon-picker/releases).
+Detailed changes for each release are documented in the [release notes](https://github.com/noeGnh/icon-picker/releases).
 
 ## License
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/noeGnh/react-icon-picker/blob/master/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/noeGnh/icon-picker/blob/master/LICENSE)
 
 ## Credits
 

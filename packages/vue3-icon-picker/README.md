@@ -3,7 +3,7 @@
 Icon picker component
 
 <p align="center">
-<img width="600" alt="Demo GIF" src="https://github.com/noeGnh/vue3-icon-picker/blob/master/demo.gif"/>
+<img width="600" alt="Demo GIF" src="https://github.com/noeGnh/icon-picker/blob/master/demo.gif"/>
 </p>
 
 ## Installation
@@ -156,8 +156,8 @@ Pull requests are welcome. For major changes, please open an issue first to disc
 
 ## Changelog
 
-Detailed changes for each release are documented in the [release notes](https://github.com/noeGnh/vue3-icon-picker/releases).
+Detailed changes for each release are documented in the [release notes](https://github.com/noeGnh/icon-picker/releases).
 
 ## License
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/noeGnh/vue3-icon-picker/blob/master/LICENSE)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](https://github.com/noeGnh/icon-picker/blob/master/LICENSE)

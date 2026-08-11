@@ -15,6 +15,11 @@ A monorepo with icon-picker component libraries for **Vue 3** and **React**, bot
 
 See each package's own README for installation, props, and usage examples.
 
+## Demo
+
+- Vue: [live demo](https://noegnh.github.io/icon-picker/) — [source](packages/playground-vue)
+- React: [source](packages/playground-react) (run `pnpm dev-react` locally)
+
 ## Development
 
 This monorepo uses [pnpm workspaces](https://pnpm.io/workspaces). Each package has both a `-vue` and `-react` variant:
