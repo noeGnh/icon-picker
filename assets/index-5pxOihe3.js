@@ -10162,7 +10162,8 @@ var __commonJSMin = (cb, mod) => () => (mod || (cb((mod = { exports: {} }).expor
 * LICENSE file in the root directory of this source tree.
 */
 var require_react_jsx_runtime_production$1 = /* @__PURE__ */ __commonJSMin(((exports) => {
-	var REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element"), REACT_FRAGMENT_TYPE = Symbol.for("react.fragment");
+	var REACT_ELEMENT_TYPE = Symbol.for("react.transitional.element");
+	var REACT_FRAGMENT_TYPE = Symbol.for("react.fragment");
 	function jsxProd(type, config, maybeKey) {
 		var key = null;
 		void 0 !== maybeKey && (key = "" + maybeKey);
@@ -10196,7 +10197,7 @@ var require_react_jsx_runtime_production$1 = /* @__PURE__ */ __commonJSMin(((exp
 var import_jsx_runtime$1 = (/* @__PURE__ */ __commonJSMin(((exports, module) => {
 	module.exports = require_react_jsx_runtime_production$1();
 })))();
-function xe(e) {
+function be(e) {
 	let t = e;
 	for (; t;) {
 		if (t.dir) return t.dir === "rtl";
@@ -10204,14 +10205,14 @@ function xe(e) {
 	}
 	return !1;
 }
-function ve(e, t) {
+function Ie(e, t) {
 	const [s, r] = (0, import_react.useState)(t === "rtl");
 	return (0, import_react.useLayoutEffect)(() => {
-		e && (t || r(xe(e)));
+		e && (t || r(be(e)));
 	}, [t, e]), s;
 }
-var q = typeof window < "u" ? import_react.useLayoutEffect : import_react.useEffect;
-function ie(e) {
+var J = typeof window < "u" ? import_react.useLayoutEffect : import_react.useEffect;
+function ce(e) {
 	if (e !== void 0) switch (typeof e) {
 		case "number": return e;
 		case "string":
@@ -10219,163 +10220,163 @@ function ie(e) {
 			break;
 	}
 }
-function be({ box: e, defaultHeight: t, defaultWidth: s, disabled: r, element: n, mode: o, style: i }) {
-	const { styleHeight: f, styleWidth: l } = (0, import_react.useMemo)(() => ({
-		styleHeight: ie(i?.height),
-		styleWidth: ie(i?.width)
-	}), [i?.height, i?.width]), [c, d] = (0, import_react.useState)({
+function we({ box: e, defaultHeight: t, defaultWidth: s, disabled: r, element: n, mode: i, style: l }) {
+	const { styleHeight: f, styleWidth: a } = (0, import_react.useMemo)(() => ({
+		styleHeight: ce(l?.height),
+		styleWidth: ce(l?.width)
+	}), [l?.height, l?.width]), [o, d] = (0, import_react.useState)({
 		height: t,
 		width: s
-	}), a = r || o === "only-height" && f !== void 0 || o === "only-width" && l !== void 0 || f !== void 0 && l !== void 0;
-	return q(() => {
-		if (n === null || a) return;
-		const h = new ResizeObserver((p) => {
-			for (const I of p) {
-				const { contentRect: u, target: w } = I;
-				n === w && d((m) => m.height === u.height && m.width === u.width ? m : {
-					height: u.height,
-					width: u.width
+	}), c = r || i === "only-height" && f !== void 0 || i === "only-width" && a !== void 0 || f !== void 0 && a !== void 0;
+	return J(() => {
+		if (n === null || c) return;
+		const g = new ResizeObserver((x) => {
+			for (const I of x) {
+				const { contentRect: h, target: z } = I;
+				n === z && d((u) => u.height === h.height && u.width === h.width ? u : {
+					height: h.height,
+					width: h.width
 				});
 			}
 		});
-		return h.observe(n, { box: e }), () => {
-			h?.unobserve(n);
+		return g.observe(n, { box: e }), () => {
+			g?.unobserve(n);
 		};
 	}, [
 		e,
-		a,
+		c,
 		n,
 		f,
-		l
+		a
 	]), (0, import_react.useMemo)(() => ({
-		height: f ?? c.height,
-		width: l ?? c.width
+		height: f ?? o.height,
+		width: a ?? o.width
 	}), [
-		c,
+		o,
 		f,
-		l
+		a
 	]);
 }
-function ae(e) {
+function de(e) {
 	const t = (0, import_react.useRef)(() => {
-		throw new Error("Cannot call during render.");
+		throw new Error("Cannot call an event handler while rendering.");
 	});
-	return q(() => {
+	return J(() => {
 		t.current = e;
-	}, [e]), (0, import_react.useCallback)((s) => t.current?.(s), [t]);
+	}, [e]), (0, import_react.useCallback)((...s) => t.current?.(...s), [t]);
 }
-var U = null;
-function Ie(e = !1) {
-	if (U === null || e) {
+var F = null;
+function me(e = !1) {
+	if (F === null || e) {
 		const t = document.createElement("div"), s = t.style;
 		s.width = "50px", s.height = "50px", s.overflow = "scroll", s.direction = "rtl";
 		const r = document.createElement("div"), n = r.style;
-		return n.width = "100px", n.height = "100px", t.appendChild(r), document.body.appendChild(t), t.scrollLeft > 0 ? U = "positive-descending" : (t.scrollLeft = 1, t.scrollLeft === 0 ? U = "negative" : U = "positive-ascending"), document.body.removeChild(t), U;
+		return n.width = "100px", n.height = "100px", t.appendChild(r), document.body.appendChild(t), t.scrollLeft > 0 ? F = "positive-descending" : (t.scrollLeft = 1, t.scrollLeft === 0 ? F = "negative" : F = "positive-ascending"), document.body.removeChild(t), F;
 	}
-	return U;
+	return F;
 }
-function Z({ containerElement: e, direction: t, isRtl: s, scrollOffset: r }) {
-	if (t === "horizontal" && s) switch (Ie()) {
+function C({ containerElement: e, direction: t, isRtl: s, scrollOffset: r }) {
+	if (t === "horizontal" && s) switch (me()) {
 		case "negative": return -r;
 		case "positive-descending":
 			if (e) {
-				const { clientWidth: n, scrollLeft: o, scrollWidth: i } = e;
-				return i - n - o;
+				const { clientWidth: n, scrollLeft: i, scrollWidth: l } = e;
+				return l - n - i;
 			}
 			break;
 	}
 	return r;
 }
-function L(e, t = "Assertion error") {
+function k(e, t = "Assertion error") {
 	if (!e) throw console.error(t), Error(t);
 }
-function Y(e, t) {
+function X(e, t) {
 	if (e === t) return !0;
-	if (!!e != !!t || (L(e !== void 0), L(t !== void 0), Object.keys(e).length !== Object.keys(t).length)) return !1;
+	if (!!e != !!t || (k(e !== void 0), k(t !== void 0), Object.keys(e).length !== Object.keys(t).length)) return !1;
 	for (const s in e) if (!Object.is(t[s], e[s])) return !1;
 	return !0;
 }
-function fe({ cachedBounds: e, itemCount: t, itemSize: s }) {
+function ue({ cachedBounds: e, itemCount: t, itemSize: s }) {
 	if (t === 0) return 0;
 	if (typeof s == "number") return t * s;
 	{
 		const r = e.get(e.size === 0 ? 0 : e.size - 1);
-		L(r !== void 0, "Unexpected bounds cache miss");
+		k(r !== void 0, "Unexpected bounds cache miss");
 		return t * ((r.scrollOffset + r.size) / e.size);
 	}
 }
-function we({ align: e, cachedBounds: t, index: s, itemCount: r, itemSize: n, containerScrollOffset: o, containerSize: i }) {
+function Oe({ align: e, cachedBounds: t, index: s, itemCount: r, itemSize: n, containerScrollOffset: i, containerSize: l }) {
 	if (s < 0 || s >= r) throw RangeError(`Invalid index specified: ${s}`, { cause: `Index ${s} is not within the range of 0 - ${r - 1}` });
-	const f = fe({
+	const f = ue({
 		cachedBounds: t,
 		itemCount: r,
 		itemSize: n
-	}), l = t.get(s), c = Math.max(0, Math.min(f - i, l.scrollOffset)), d = Math.max(0, l.scrollOffset - i + l.size);
-	switch (e === "smart" && (o >= d && o <= c ? e = "auto" : e = "center"), e) {
-		case "start": return c;
+	}), a = t.get(s), o = Math.max(0, Math.min(f - l, a.scrollOffset)), d = Math.max(0, a.scrollOffset - l + a.size);
+	switch (e === "smart" && (i >= d && i <= o ? e = "auto" : e = "center"), e) {
+		case "start": return o;
 		case "end": return d;
-		case "center": return l.scrollOffset <= i / 2 ? 0 : l.scrollOffset + l.size / 2 >= f - i / 2 ? f - i : l.scrollOffset + l.size / 2 - i / 2;
-		default: return o >= d && o <= c ? o : o < d ? d : c;
+		case "center": return a.scrollOffset <= l / 2 ? 0 : a.scrollOffset + a.size / 2 >= f - l / 2 ? f - l : a.scrollOffset + a.size / 2 - l / 2;
+		default: return i >= d && i <= o ? i : i < d ? d : o;
 	}
 }
-function P({ cachedBounds: e, containerScrollOffset: t, containerSize: s, itemCount: r, overscanCount: n }) {
-	const o = r - 1;
-	let i = 0, f = -1, l = 0, c = -1, d = 0;
-	for (; d < o;) {
-		const a = e.get(d);
-		if (a.scrollOffset + a.size > t) break;
+function ee({ cachedBounds: e, containerScrollOffset: t, containerSize: s, itemCount: r, overscanCount: n }) {
+	const i = r - 1;
+	let l = 0, f = -1, a = 0, o = -1, d = 0;
+	for (; d < i;) {
+		const c = e.get(d);
+		if (c.scrollOffset + c.size > t) break;
 		d++;
 	}
-	for (i = d, l = Math.max(0, i - n); d < o;) {
-		const a = e.get(d);
-		if (a.scrollOffset + a.size >= t + s) break;
+	for (l = d, a = Math.max(0, l - n); d < i;) {
+		const c = e.get(d);
+		if (c.scrollOffset + c.size >= t + s) break;
 		d++;
 	}
-	return f = Math.min(o, d), c = Math.min(r - 1, f + n), i < 0 && (i = 0, f = -1, l = 0, c = -1), {
-		startIndexVisible: i,
+	return f = Math.min(i, d), o = Math.min(r - 1, f + n), l < 0 && (l = 0, f = -1, a = 0, o = -1), {
+		startIndexVisible: l,
 		stopIndexVisible: f,
-		startIndexOverscan: l,
-		stopIndexOverscan: c
+		startIndexOverscan: a,
+		stopIndexOverscan: o
 	};
 }
-function me({ itemCount: e, itemProps: t, itemSize: s }) {
+function ye({ itemCount: e, itemProps: t, itemSize: s }) {
 	const r = /* @__PURE__ */ new Map();
 	return {
 		get(n) {
-			for (L(n < e, `Invalid index ${n}`); r.size - 1 < n;) {
-				const i = r.size;
+			for (k(n < e, `Invalid index ${n}`); r.size - 1 < n;) {
+				const l = r.size;
 				let f;
 				switch (typeof s) {
 					case "function":
-						f = s(i, t);
+						f = s(l, t);
 						break;
 					case "number": f = s;
 				}
-				if (i === 0) r.set(i, {
+				if (l === 0) r.set(l, {
 					size: f,
 					scrollOffset: 0
 				});
 				else {
-					const l = r.get(i - 1);
-					L(l !== void 0, `Unexpected bounds cache miss for index ${n}`), r.set(i, {
-						scrollOffset: l.scrollOffset + l.size,
+					const a = r.get(l - 1);
+					k(a !== void 0, `Unexpected bounds cache miss for index ${n}`), r.set(l, {
+						scrollOffset: a.scrollOffset + a.size,
 						size: f
 					});
 				}
 			}
-			const o = r.get(n);
-			return L(o !== void 0, `Unexpected bounds cache miss for index ${n}`), o;
+			const i = r.get(n);
+			return k(i !== void 0, `Unexpected bounds cache miss for index ${n}`), i;
 		},
-		set(n, o) {
-			r.set(n, o);
+		set(n, i) {
+			r.set(n, i);
 		},
 		get size() {
 			return r.size;
 		}
 	};
 }
-function Oe({ itemCount: e, itemProps: t, itemSize: s }) {
-	return (0, import_react.useMemo)(() => me({
+function ze({ itemCount: e, itemProps: t, itemSize: s }) {
+	return (0, import_react.useMemo)(() => ye({
 		itemCount: e,
 		itemProps: t,
 		itemSize: s
@@ -10385,315 +10386,326 @@ function Oe({ itemCount: e, itemProps: t, itemSize: s }) {
 		s
 	]);
 }
-function ye({ containerSize: e, itemSize: t }) {
+function Se({ containerSize: e, itemSize: t }) {
 	let s;
 	switch (typeof t) {
 		case "string":
-			L(t.endsWith("%"), `Invalid item size: "${t}"; string values must be percentages (e.g. "100%")`), L(e !== void 0, "Container size must be defined if a percentage item size is specified"), s = e * parseInt(t) / 100;
+			k(t.endsWith("%"), `Invalid item size: "${t}"; string values must be percentages (e.g. "100%")`), k(e !== void 0, "Container size must be defined if a percentage item size is specified"), s = e * parseInt(t) / 100;
 			break;
 		default: s = t;
 	}
 	return s;
 }
-function te({ containerElement: e, containerStyle: t, defaultContainerSize: s = 0, direction: r, isRtl: n = !1, itemCount: o, itemProps: i, itemSize: f, onResize: l, overscanCount: c }) {
-	const { height: d = s, width: a = s } = be({
+function re({ containerElement: e, containerStyle: t, defaultContainerSize: s = 0, direction: r, isRtl: n = !1, itemCount: i, itemProps: l, itemSize: f, onResize: a, overscanCount: o }) {
+	const { height: d = s, width: c = s } = we({
 		defaultHeight: r === "vertical" ? s : void 0,
 		defaultWidth: r === "horizontal" ? s : void 0,
 		element: e,
 		mode: r === "vertical" ? "only-height" : "only-width",
 		style: t
-	}), h = (0, import_react.useRef)({
+	}), g = (0, import_react.useRef)({
 		height: 0,
 		width: 0
-	}), p = r === "vertical" ? d : a, I = ye({
-		containerSize: p,
+	}), x = r === "vertical" ? d : c, I = Se({
+		containerSize: x,
 		itemSize: f
 	});
 	(0, import_react.useLayoutEffect)(() => {
-		if (typeof l == "function") {
-			const g = h.current;
-			(g.height !== d || g.width !== a) && (l({
+		if (typeof a == "function") {
+			const p = g.current;
+			(p.height !== d || p.width !== c) && (a({
 				height: d,
-				width: a
-			}, { ...g }), g.height = d, g.width = a);
+				width: c
+			}, { ...p }), p.height = d, p.width = c);
 		}
 	}, [
 		d,
-		l,
-		a
+		a,
+		c
 	]);
-	const u = Oe({
-		itemCount: o,
-		itemProps: i,
+	const h = ze({
+		itemCount: i,
+		itemProps: l,
 		itemSize: I
-	}), w = (0, import_react.useCallback)((g) => u.get(g), [u]), [m, O] = (0, import_react.useState)(() => P({
-		cachedBounds: u,
+	}), z = (0, import_react.useCallback)((p) => h.get(p), [h]), [u, j] = (0, import_react.useState)(() => ee({
+		cachedBounds: h,
 		containerScrollOffset: 0,
-		containerSize: p,
-		itemCount: o,
-		overscanCount: c
-	})), { startIndexVisible: G, startIndexOverscan: x, stopIndexVisible: F, stopIndexOverscan: V } = {
-		startIndexVisible: Math.min(o - 1, m.startIndexVisible),
-		startIndexOverscan: Math.min(o - 1, m.startIndexOverscan),
-		stopIndexVisible: Math.min(o - 1, m.stopIndexVisible),
-		stopIndexOverscan: Math.min(o - 1, m.stopIndexOverscan)
-	}, z = (0, import_react.useCallback)(() => fe({
-		cachedBounds: u,
-		itemCount: o,
+		containerSize: x,
+		itemCount: i,
+		overscanCount: o
+	})), { startIndexVisible: T, startIndexOverscan: E, stopIndexVisible: D, stopIndexOverscan: v } = {
+		startIndexVisible: Math.min(i - 1, u.startIndexVisible),
+		startIndexOverscan: Math.min(i - 1, u.startIndexOverscan),
+		stopIndexVisible: Math.min(i - 1, u.stopIndexVisible),
+		stopIndexOverscan: Math.min(i - 1, u.stopIndexOverscan)
+	}, U = (0, import_react.useCallback)(() => ue({
+		cachedBounds: h,
+		itemCount: i,
 		itemSize: I
 	}), [
-		u,
-		o,
+		h,
+		i,
 		I
-	]), $ = (0, import_react.useCallback)((g) => {
-		return P({
-			cachedBounds: u,
-			containerScrollOffset: Z({
-				containerElement: e,
-				direction: r,
-				isRtl: n,
-				scrollOffset: g
-			}),
-			containerSize: p,
-			itemCount: o,
-			overscanCount: c
+	]), m = (0, import_react.useCallback)((p) => {
+		const O = C({
+			containerElement: e,
+			direction: r,
+			isRtl: n,
+			scrollOffset: p
+		});
+		return ee({
+			cachedBounds: h,
+			containerScrollOffset: O,
+			containerSize: x,
+			itemCount: i,
+			overscanCount: o
 		});
 	}, [
-		u,
+		h,
 		e,
-		p,
+		x,
 		r,
 		n,
-		o,
-		c
+		i,
+		o
 	]);
-	q(() => {
-		O($((r === "vertical" ? e?.scrollTop : e?.scrollLeft) ?? 0));
+	J(() => {
+		const p = (r === "vertical" ? e?.scrollTop : e?.scrollLeft) ?? 0;
+		j(m(p));
 	}, [
 		e,
 		r,
-		$
-	]), q(() => {
+		m
+	]), J(() => {
 		if (!e) return;
-		const g = () => {
-			O((S) => {
-				const { scrollLeft: E, scrollTop: b } = e, R = P({
-					cachedBounds: u,
-					containerScrollOffset: Z({
-						containerElement: e,
-						direction: r,
-						isRtl: n,
-						scrollOffset: r === "vertical" ? b : E
-					}),
-					containerSize: p,
-					itemCount: o,
-					overscanCount: c
-				});
-				return Y(R, S) ? S : R;
-			});
-		};
-		return e.addEventListener("scroll", g), () => {
-			e.removeEventListener("scroll", g);
-		};
-	}, [
-		u,
-		e,
-		p,
-		r,
-		o,
-		c
-	]);
-	return {
-		getCellBounds: w,
-		getEstimatedSize: z,
-		scrollToIndex: ae(({ align: g = "auto", containerScrollOffset: S, index: E }) => {
-			let b = we({
-				align: g,
-				cachedBounds: u,
-				containerScrollOffset: S,
-				containerSize: p,
-				index: E,
-				itemCount: o,
-				itemSize: I
-			});
-			if (e) {
-				if (b = Z({
+		const p = () => {
+			j((O) => {
+				const { scrollLeft: M, scrollTop: S } = e, b = C({
 					containerElement: e,
 					direction: r,
 					isRtl: n,
-					scrollOffset: b
+					scrollOffset: r === "vertical" ? S : M
+				}), w = ee({
+					cachedBounds: h,
+					containerScrollOffset: b,
+					containerSize: x,
+					itemCount: i,
+					overscanCount: o
+				});
+				return X(w, O) ? O : w;
+			});
+		};
+		return e.addEventListener("scroll", p), () => {
+			e.removeEventListener("scroll", p);
+		};
+	}, [
+		h,
+		e,
+		x,
+		r,
+		i,
+		o
+	]);
+	return {
+		getCellBounds: z,
+		getEstimatedSize: U,
+		scrollToIndex: de(({ align: p = "auto", containerScrollOffset: O, index: M }) => {
+			let S = Oe({
+				align: p,
+				cachedBounds: h,
+				containerScrollOffset: O,
+				containerSize: x,
+				index: M,
+				itemCount: i,
+				itemSize: I
+			});
+			if (e) {
+				if (S = C({
+					containerElement: e,
+					direction: r,
+					isRtl: n,
+					scrollOffset: S
 				}), typeof e.scrollTo != "function") {
-					const v = $(b);
-					Y(m, v) || O(v);
+					const b = m(S);
+					X(u, b) || j(b);
 				}
-				return b;
+				return S;
 			}
 		}),
-		startIndexOverscan: x,
-		startIndexVisible: G,
-		stopIndexOverscan: V,
-		stopIndexVisible: F
+		startIndexOverscan: E,
+		startIndexVisible: T,
+		stopIndexOverscan: v,
+		stopIndexVisible: D
 	};
 }
-function de(e) {
+function he(e) {
 	return (0, import_react.useMemo)(() => e, Object.values(e));
 }
-function ue(e, t) {
-	const { ariaAttributes: s, style: r, ...n } = e, { ariaAttributes: o, style: i, ...f } = t;
-	return Y(s, o) && Y(r, i) && Y(n, f);
+function pe(e, t) {
+	const { ariaAttributes: s, style: r, ...n } = e, { ariaAttributes: i, style: l, ...f } = t;
+	return X(s, i) && X(r, l) && X(n, f);
 }
-function Ee({ cellComponent: e, cellProps: t, children: s, className: r, columnCount: n, columnWidth: o, defaultHeight: i = 0, defaultWidth: f = 0, dir: l, gridRef: c, onCellsRendered: d, onResize: a, overscanCount: h = 3, rowCount: p, rowHeight: I, style: u, tagName: w = "div", ...m }) {
-	const O = de(t), G = (0, import_react.useMemo)(() => (0, import_react.memo)(e, ue), [e]), [x, F] = (0, import_react.useState)(null), V = ve(x, l), { getCellBounds: z, getEstimatedSize: $, startIndexOverscan: y, startIndexVisible: g, scrollToIndex: S, stopIndexOverscan: E, stopIndexVisible: b } = te({
-		containerElement: x,
+function Ve({ cellComponent: e, cellProps: t, children: s, className: r, columnCount: n, columnKey: i, columnWidth: l, defaultHeight: f = 0, defaultWidth: a = 0, dir: o, gridRef: d, onCellsRendered: c, onResize: g, overscanCount: x = 3, rowCount: I, rowHeight: h, rowKey: z, style: u, tagName: j = "div", ...T }) {
+	const E = he(t), D = (0, import_react.useMemo)(() => (0, import_react.memo)(e, pe), [e]), [v, U] = (0, import_react.useState)(null), m = Ie(v, o), { getCellBounds: G, getEstimatedSize: p, startIndexOverscan: O, startIndexVisible: M, scrollToIndex: S, stopIndexOverscan: b, stopIndexVisible: w } = re({
+		containerElement: v,
+		containerStyle: u,
+		defaultContainerSize: a,
+		direction: "horizontal",
+		isRtl: m,
+		itemCount: n,
+		itemProps: E,
+		itemSize: l,
+		onResize: g,
+		overscanCount: x
+	}), { getCellBounds: V, getEstimatedSize: _, startIndexOverscan: N, startIndexVisible: oe, scrollToIndex: K, stopIndexOverscan: Y, stopIndexVisible: le } = re({
+		containerElement: v,
 		containerStyle: u,
 		defaultContainerSize: f,
-		direction: "horizontal",
-		isRtl: V,
-		itemCount: n,
-		itemProps: O,
-		itemSize: o,
-		onResize: a,
-		overscanCount: h
-	}), { getCellBounds: v, getEstimatedSize: R, startIndexOverscan: k, startIndexVisible: ne, scrollToIndex: Q, stopIndexOverscan: _, stopIndexVisible: oe } = te({
-		containerElement: x,
-		containerStyle: u,
-		defaultContainerSize: i,
 		direction: "vertical",
-		itemCount: p,
-		itemProps: O,
-		itemSize: I,
-		onResize: a,
-		overscanCount: h
+		itemCount: I,
+		itemProps: E,
+		itemSize: h,
+		onResize: g,
+		overscanCount: x
 	});
-	(0, import_react.useImperativeHandle)(c, () => ({
+	(0, import_react.useImperativeHandle)(d, () => ({
 		get element() {
-			return x;
+			return v;
 		},
-		scrollToCell({ behavior: H = "auto", columnAlign: T = "auto", columnIndex: W, rowAlign: B = "auto", rowIndex: j }) {
-			const N = S({
-				align: T,
-				containerScrollOffset: x?.scrollLeft ?? 0,
-				index: W
-			}), ge = Q({
-				align: B,
-				containerScrollOffset: x?.scrollTop ?? 0,
-				index: j
+		scrollToCell({ behavior: $ = "auto", columnAlign: y = "auto", columnIndex: H, rowAlign: W = "auto", rowIndex: A }) {
+			const q = S({
+				align: y,
+				containerScrollOffset: v?.scrollLeft ?? 0,
+				index: H
+			}), ve = K({
+				align: W,
+				containerScrollOffset: v?.scrollTop ?? 0,
+				index: A
 			});
-			typeof x?.scrollTo == "function" && x.scrollTo({
-				behavior: H,
-				left: N,
-				top: ge
-			});
-		},
-		scrollToColumn({ align: H = "auto", behavior: T = "auto", index: W }) {
-			const B = S({
-				align: H,
-				containerScrollOffset: x?.scrollLeft ?? 0,
-				index: W
-			});
-			typeof x?.scrollTo == "function" && x.scrollTo({
-				behavior: T,
-				left: B
+			typeof v?.scrollTo == "function" && v.scrollTo({
+				behavior: $,
+				left: q,
+				top: ve
 			});
 		},
-		scrollToRow({ align: H = "auto", behavior: T = "auto", index: W }) {
-			const B = Q({
-				align: H,
-				containerScrollOffset: x?.scrollTop ?? 0,
-				index: W
+		scrollToColumn({ align: $ = "auto", behavior: y = "auto", index: H }) {
+			const W = S({
+				align: $,
+				containerScrollOffset: v?.scrollLeft ?? 0,
+				index: H
 			});
-			typeof x?.scrollTo == "function" && x.scrollTo({
-				behavior: T,
-				top: B
+			typeof v?.scrollTo == "function" && v.scrollTo({
+				behavior: y,
+				left: W
+			});
+		},
+		scrollToRow({ align: $ = "auto", behavior: y = "auto", index: H }) {
+			const W = K({
+				align: $,
+				containerScrollOffset: v?.scrollTop ?? 0,
+				index: H
+			});
+			typeof v?.scrollTo == "function" && v.scrollTo({
+				behavior: y,
+				top: W
 			});
 		}
 	}), [
-		x,
+		v,
 		S,
-		Q
+		K
 	]), (0, import_react.useEffect)(() => {
-		y >= 0 && E >= 0 && k >= 0 && _ >= 0 && d && d({
-			columnStartIndex: g,
-			columnStopIndex: b,
-			rowStartIndex: ne,
-			rowStopIndex: oe
+		O >= 0 && b >= 0 && N >= 0 && Y >= 0 && c && c({
+			columnStartIndex: M,
+			columnStopIndex: w,
+			rowStartIndex: oe,
+			rowStopIndex: le
 		}, {
-			columnStartIndex: y,
-			columnStopIndex: E,
-			rowStartIndex: k,
-			rowStopIndex: _
+			columnStartIndex: O,
+			columnStopIndex: b,
+			rowStartIndex: N,
+			rowStopIndex: Y
 		});
 	}, [
-		d,
-		y,
-		g,
-		E,
+		c,
+		O,
+		M,
 		b,
-		k,
-		ne,
-		_,
-		oe
+		w,
+		N,
+		oe,
+		Y,
+		le
 	]);
-	const he = (0, import_react.useMemo)(() => {
-		const H = [];
-		if (n > 0 && p > 0) for (let T = k; T <= _; T++) {
-			const W = v(T), B = [];
-			for (let j = y; j <= E; j++) {
-				const N = z(j);
-				B.push(/* @__PURE__ */ (0, import_react.createElement)(G, {
-					...O,
+	const ge = (0, import_react.useMemo)(() => {
+		const $ = [];
+		if (n > 0 && I > 0) for (let y = N; y <= Y; y++) {
+			const H = V(y), W = [];
+			for (let A = O; A <= b; A++) {
+				const q = G(A);
+				W.push(/* @__PURE__ */ (0, import_react.createElement)(D, {
+					...E,
 					ariaAttributes: {
-						"aria-colindex": j + 1,
+						"aria-colindex": A + 1,
 						role: "gridcell"
 					},
-					columnIndex: j,
-					key: j,
-					rowIndex: T,
+					columnIndex: A,
+					key: i ? i({
+						columnIndex: A,
+						data: E,
+						rowIndex: y
+					}) : A,
+					rowIndex: y,
 					style: {
 						position: "absolute",
-						left: V ? void 0 : 0,
-						right: V ? 0 : void 0,
-						transform: `translate(${V ? -N.scrollOffset : N.scrollOffset}px, ${W.scrollOffset}px)`,
-						height: W.size,
-						width: N.size
+						left: m ? void 0 : 0,
+						right: m ? 0 : void 0,
+						transform: `translate(${m ? -q.scrollOffset : q.scrollOffset}px, ${H.scrollOffset}px)`,
+						height: H.size,
+						width: q.size
 					}
 				}));
 			}
-			H.push(/* @__PURE__ */ (0, import_jsx_runtime$1.jsx)("div", {
+			$.push(/* @__PURE__ */ (0, import_jsx_runtime$1.jsx)("div", {
 				role: "row",
-				"aria-rowindex": T + 1,
-				children: B
-			}, T));
+				"aria-rowindex": y + 1,
+				children: W
+			}, z ? z({
+				data: E,
+				rowIndex: y
+			}) : y));
 		}
-		return H;
+		return $;
 	}, [
-		G,
-		O,
-		n,
-		y,
+		D,
 		E,
-		z,
-		v,
+		n,
+		i,
+		O,
+		b,
+		G,
 		V,
-		p,
-		k,
-		_
-	]), pe = /* @__PURE__ */ (0, import_jsx_runtime$1.jsx)("div", {
+		m,
+		I,
+		z,
+		N,
+		Y
+	]), xe = /* @__PURE__ */ (0, import_jsx_runtime$1.jsx)("div", {
 		"aria-hidden": !0,
 		style: {
-			height: R(),
-			width: $(),
+			height: _(),
+			width: p(),
 			zIndex: -1
 		}
 	});
-	return (0, import_react.createElement)(w, {
+	return (0, import_react.createElement)(j, {
 		"aria-colcount": n,
-		"aria-rowcount": p,
+		"aria-rowcount": I,
 		role: "grid",
-		...m,
+		...T,
 		className: r,
-		dir: l,
-		ref: F,
+		dir: o,
+		ref: U,
 		style: {
 			position: "relative",
 			maxHeight: "100%",
@@ -10702,7 +10714,7 @@ function Ee({ cellComponent: e, cellProps: t, children: s, className: r, columnC
 			overflow: "auto",
 			...u
 		}
-	}, he, s, pe);
+	}, ge, s, xe);
 }
 /**
 * Resolve icon set icons
@@ -12332,8 +12344,10 @@ function IconComponent(props) {
 			name,
 			data
 		})) {
-			if (data === void 0) setAbort({ callback: loadIcons([name], updateState) });
-			else if (data) (_a = props.onLoad) === null || _a === void 0 || _a.call(props, name);
+			if (data === void 0) {
+				const callback = loadIcons([name], updateState);
+				setAbort({ callback });
+			} else if (data) (_a = props.onLoad) === null || _a === void 0 || _a.call(props, name);
 		}
 	}
 	(0, import_react.useEffect)(() => {
@@ -12649,9 +12663,11 @@ function clone(object) {
 		var _ref3 = _slicedToArray(_ref2, 2);
 		const property = _ref3[0];
 		const value = _ref3[1];
-		if (objectHasOwnProperty(object, property)) if (arrayIsArray(value)) newObject[property] = cleanArray(value);
-		else if (value && typeof value === "object" && value.constructor === Object) newObject[property] = clone(value);
-		else newObject[property] = value;
+		if (objectHasOwnProperty(object, property)) {
+			if (arrayIsArray(value)) newObject[property] = cleanArray(value);
+			else if (value && typeof value === "object" && value.constructor === Object) newObject[property] = clone(value);
+			else newObject[property] = value;
+		}
 	}
 	return newObject;
 }
@@ -13957,12 +13973,14 @@ function createDOMPurify() {
 			});
 		}
 		element.removeAttribute(name);
-		if (name === "is") if (RETURN_DOM || RETURN_DOM_FRAGMENT) try {
-			_forceRemove(element);
-		} catch (_) {}
-		else try {
-			element.setAttribute(name, "");
-		} catch (_) {}
+		if (name === "is") {
+			if (RETURN_DOM || RETURN_DOM_FRAGMENT) try {
+				_forceRemove(element);
+			} catch (_) {}
+			else try {
+				element.setAttribute(name, "");
+			} catch (_) {}
+		}
 	};
 	/**
 	* _stripDisallowedAttributes
@@ -14369,9 +14387,10 @@ function createDOMPurify() {
 		const nameIsPermitted = ALLOWED_ATTR[lcName] || EXTRA_ELEMENT_HANDLING.attributeCheck instanceof Function && EXTRA_ELEMENT_HANDLING.attributeCheck(lcName, lcTag);
 		if (ALLOW_DATA_ATTR && regExpTest(DATA_ATTR$1, lcName));
 		else if (ALLOW_ARIA_ATTR && regExpTest(ARIA_ATTR$1, lcName));
-		else if (!nameIsPermitted) if (_isBasicCustomElement(lcTag) && (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.tagNameCheck, lcTag) || CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.tagNameCheck(lcTag)) && (CUSTOM_ELEMENT_HANDLING.attributeNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.attributeNameCheck, lcName) || CUSTOM_ELEMENT_HANDLING.attributeNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.attributeNameCheck(lcName, lcTag)) || lcName === "is" && CUSTOM_ELEMENT_HANDLING.allowCustomizedBuiltInElements && (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.tagNameCheck, value) || CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.tagNameCheck(value)));
-		else return false;
-		else if (URI_SAFE_ATTRIBUTES[lcName]);
+		else if (!nameIsPermitted) {
+			if (_isBasicCustomElement(lcTag) && (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.tagNameCheck, lcTag) || CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.tagNameCheck(lcTag)) && (CUSTOM_ELEMENT_HANDLING.attributeNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.attributeNameCheck, lcName) || CUSTOM_ELEMENT_HANDLING.attributeNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.attributeNameCheck(lcName, lcTag)) || lcName === "is" && CUSTOM_ELEMENT_HANDLING.allowCustomizedBuiltInElements && (CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof RegExp && regExpTest(CUSTOM_ELEMENT_HANDLING.tagNameCheck, value) || CUSTOM_ELEMENT_HANDLING.tagNameCheck instanceof Function && CUSTOM_ELEMENT_HANDLING.tagNameCheck(value)));
+			else return false;
+		} else if (URI_SAFE_ATTRIBUTES[lcName]);
 		else if (regExpTest(IS_ALLOWED_URI$1, stringReplace(value, ATTR_WHITESPACE$1, "")));
 		else if ((lcName === "src" || lcName === "xlink:href" || lcName === "href") && lcTag !== "script" && stringIndexOf(value, "data:") === 0 && DATA_URI_TAGS[lcTag]);
 		else if (ALLOW_UNKNOWN_PROTOCOLS && !regExpTest(IS_SCRIPT_OR_DATA$1, stringReplace(value, ATTR_WHITESPACE$1, "")));
@@ -14684,7 +14703,8 @@ function createDOMPurify() {
 		return trustedTypesPolicy && RETURN_TRUSTED_TYPE ? _createTrustedHTML(serializedHTML) : serializedHTML;
 	};
 	DOMPurify.setConfig = function() {
-		_parseConfig(arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {});
+		let cfg = arguments.length > 0 && arguments[0] !== void 0 ? arguments[0] : {};
+		_parseConfig(cfg);
 		SET_CONFIG = true;
 		SET_CONFIG_ALLOWED_TAGS = ALLOWED_TAGS;
 		SET_CONFIG_ALLOWED_ATTR = ALLOWED_ATTR;
@@ -14699,7 +14719,9 @@ function createDOMPurify() {
 	};
 	DOMPurify.isValidAttribute = function(tag, attr, value) {
 		if (!CONFIG) _parseConfig({});
-		return _isValidAttribute(transformCaseFunc(tag), transformCaseFunc(attr), value);
+		const lcTag = transformCaseFunc(tag);
+		const lcName = transformCaseFunc(attr);
+		return _isValidAttribute(lcTag, lcName, value);
 	};
 	DOMPurify.addHook = function(entryPoint, hookFunction) {
 		if (typeof hookFunction !== "function") return;
@@ -15041,6 +15063,8 @@ var Picker = ({ value, onChange, searchPlaceholder = "Search", placeholder, mult
 								onBadgeRemove(val);
 							},
 							children: /* @__PURE__ */ (0, import_jsx_runtime$1.jsxs)("svg", {
+								width: 11,
+								height: 11,
 								viewBox: "0 0 24 24",
 								fill: "none",
 								stroke: "currentColor",
@@ -15074,6 +15098,8 @@ var Picker = ({ value, onChange, searchPlaceholder = "Search", placeholder, mult
 							clearAll();
 						},
 						children: /* @__PURE__ */ (0, import_jsx_runtime$1.jsxs)("svg", {
+							width: 11,
+							height: 11,
 							viewBox: "0 0 24 24",
 							fill: "none",
 							stroke: "currentColor",
@@ -15110,6 +15136,8 @@ var Picker = ({ value, onChange, searchPlaceholder = "Search", placeholder, mult
 						onBadgeRemove(value);
 					},
 					children: /* @__PURE__ */ (0, import_jsx_runtime$1.jsxs)("svg", {
+						width: 11,
+						height: 11,
 						viewBox: "0 0 24 24",
 						fill: "none",
 						stroke: "currentColor",
@@ -15135,6 +15163,8 @@ var Picker = ({ value, onChange, searchPlaceholder = "Search", placeholder, mult
 			}), /* @__PURE__ */ (0, import_jsx_runtime$1.jsx)("span", {
 				className: `${Picker_module_default.r3ipChevron} ${open ? Picker_module_default.open : ""}`,
 				children: /* @__PURE__ */ (0, import_jsx_runtime$1.jsx)("svg", {
+					width: 12,
+					height: 12,
 					viewBox: "0 0 24 24",
 					fill: "none",
 					stroke: "currentColor",
@@ -15152,6 +15182,8 @@ var Picker = ({ value, onChange, searchPlaceholder = "Search", placeholder, mult
 					children: [
 						/* @__PURE__ */ (0, import_jsx_runtime$1.jsxs)("svg", {
 							className: Picker_module_default.r3ipSearchIcon,
+							width: 12,
+							height: 12,
 							viewBox: "0 0 24 24",
 							fill: "none",
 							stroke: "currentColor",
@@ -15183,6 +15215,8 @@ var Picker = ({ value, onChange, searchPlaceholder = "Search", placeholder, mult
 							title: "Clear search",
 							onClick: clearSearch,
 							children: /* @__PURE__ */ (0, import_jsx_runtime$1.jsxs)("svg", {
+								width: 11,
+								height: 11,
 								viewBox: "0 0 24 24",
 								fill: "none",
 								stroke: "currentColor",
@@ -15211,7 +15245,7 @@ var Picker = ({ value, onChange, searchPlaceholder = "Search", placeholder, mult
 				filteredIcons && filteredIcons.length ? /* @__PURE__ */ (0, import_jsx_runtime$1.jsx)("div", {
 					ref: scrollerRef,
 					className: Picker_module_default.r3ipItems,
-					children: scrollerWidth > 0 && /* @__PURE__ */ (0, import_jsx_runtime$1.jsx)(Ee, {
+					children: scrollerWidth > 0 && /* @__PURE__ */ (0, import_jsx_runtime$1.jsx)(Ve, {
 						cellComponent: Cell,
 						cellProps: {},
 						columnCount,
@@ -15406,9 +15440,7 @@ var assetsURL = function(dep) {
 	return "/icon-picker/" + dep;
 };
 var seen = {};
-//#endregion
-//#region src/main.tsx
-(function preload(baseModule, deps, importerUrl) {
+var __vitePreload = function preload(baseModule, deps, importerUrl) {
 	let promise = Promise.resolve();
 	if (deps && deps.length > 0) {
 		const links = document.getElementsByTagName("link");
@@ -15467,6 +15499,12 @@ var seen = {};
 		}
 		return baseModule().catch(handlePreloadError);
 	});
-})(() => Promise.resolve({}), __vite__mapDeps([0]));
-(0, import_client.createRoot)(document.getElementById("root")).render(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react.StrictMode, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(App, {}) }));
+};
+//#endregion
+//#region src/main.tsx
+async function bootstrap() {
+	await __vitePreload(() => Promise.resolve({}), __vite__mapDeps([0]));
+	(0, import_client.createRoot)(document.getElementById("root")).render(/* @__PURE__ */ (0, import_jsx_runtime.jsx)(import_react.StrictMode, { children: /* @__PURE__ */ (0, import_jsx_runtime.jsx)(App, {}) }));
+}
+bootstrap();
 //#endregion
