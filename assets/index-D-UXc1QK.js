@@ -1,4 +1,4 @@
-const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/style-BIbAYi4N.css"])))=>i.map(i=>d[i]);
+const __vite__mapDeps=(i,m=__vite__mapDeps,d=(m.f||(m.f=["assets/style-BdJElAvi.css"])))=>i.map(i=>d[i]);
 //#region \0vite/modulepreload-polyfill.js
 (function polyfill() {
 	const relList = document.createElement("link").relList;
@@ -6574,7 +6574,9 @@ var mt = function e() {
 	}, n.clearConfig = function() {
 		qt = null, mt = !1, ht = null, vt = null, T = I, k = "";
 	}, n.isValidAttribute = function(e, t, n) {
-		return qt || Qt({}), gn(Gt(e), Gt(t), n);
+		qt || Qt({});
+		const o = Gt(e), r = Gt(t);
+		return gn(o, r, n);
 	}, n.addHook = function(e, t) {
 		"function" == typeof t && Ee(D, e) && pe(D[e], t);
 	}, n.removeHook = function(e, t) {
@@ -8330,7 +8332,7 @@ function Eo(e, t, o, r, i, l) {
 						e._vs_styleStamp++;
 					}(J);
 				} else J = function(e, t, n, o, r) {
-					const i = /* @__PURE__ */ shallowReactive({
+					const l = /* @__PURE__ */ shallowReactive({
 						item: n,
 						position: 0,
 						offset: 0,
@@ -8344,7 +8346,7 @@ function Eo(e, t, o, r, i, l) {
 						_vs_styleStamp: 0,
 						_vs_visibilityStamp: 0
 					});
-					return e.push(i), i;
+					return e.push(l), l;
 				}($, e, de, r, he);
 				H.set(r, J), i = !0;
 			}
@@ -8665,7 +8667,7 @@ var Mo = /* @__PURE__ */ defineComponent({
 		"scrollEnd"
 	],
 	setup(t, { expose: l, emit: s }) {
-		const c = t, u = s, d = zo, f = /* @__PURE__ */ ref(), p = /* @__PURE__ */ ref(), h = /* @__PURE__ */ ref(), y = /* @__PURE__ */ ref(null), b = /* @__PURE__ */ toRef(c, "items"), { pool: w, visiblePool: x, totalSize: S, startSpacerSize: A, endSpacerSize: N, ready: z, scrollToItem: M, scrollToPosition: L, getScroll: F, findItemIndex: D, getItemOffset: P, getItemSize: j, getViewStyle: U, cacheSnapshot: $, restoreCache: V, updateVisibleItems: W, handleResize: Y, handleVisibilityChange: G } = Eo(computed(() => ({
+		const c = t, u = s, d = zo, f = /* @__PURE__ */ ref(), p = /* @__PURE__ */ ref(), h = /* @__PURE__ */ ref(), y = /* @__PURE__ */ ref(null), b = /* @__PURE__ */ toRef(c, "items"), { pool: x, visiblePool: S, totalSize: A, startSpacerSize: N, endSpacerSize: z, ready: M, scrollToItem: L, scrollToPosition: F, getScroll: D, findItemIndex: P, getItemOffset: j, getItemSize: U, getViewStyle: $, cacheSnapshot: V, restoreCache: W, updateVisibleItems: Y, handleResize: G, handleVisibilityChange: q } = Eo(computed(() => ({
 			items: b,
 			el: f,
 			before: p,
@@ -8696,14 +8698,14 @@ var Mo = /* @__PURE__ */ defineComponent({
 			onUpdate: (e, t, n, o) => {
 				u("update", e, t, n, o), n <= 0 && u("scrollStart"), o >= c.items.length - 1 && u("scrollEnd");
 			}
-		}))), q = computed(() => "flow" === lo({
+		}))), X = computed(() => "flow" === lo({
 			direction: c.direction,
 			disableTransform: c.disableTransform,
 			flowMode: c.flowMode,
 			gridItems: c.gridItems
-		})), X = computed(() => ({ height: `${A.value}px` })), K = computed(() => ({ height: `${N.value}px` }));
-		const Q = computed(() => {
-			const e = { ["vertical" === c.direction ? "minHeight" : "minWidth"]: `${S.value}px` }, t = wo(c.itemSize);
+		})), K = computed(() => ({ height: `${N.value}px` })), Q = computed(() => ({ height: `${z.value}px` }));
+		const Z = computed(() => {
+			const e = { ["vertical" === c.direction ? "minHeight" : "minWidth"]: `${A.value}px` }, t = wo(c.itemSize);
 			if (c.gridItems && null != t) {
 				const n = (c.itemSecondarySize || t) * c.gridItems;
 				e["vertical" === c.direction ? "minWidth" : "minHeight"] = `${n}px`;
@@ -8712,25 +8714,25 @@ var Mo = /* @__PURE__ */ defineComponent({
 		});
 		return l({
 			el: f,
-			visiblePool: x,
-			startSpacerSize: A,
-			endSpacerSize: N,
-			scrollToItem: M,
-			scrollToPosition: L,
-			getScroll: F,
-			findItemIndex: D,
-			getItemOffset: P,
-			getItemSize: j,
-			cacheSnapshot: $,
-			restoreCache: V,
-			updateVisibleItems: W
+			visiblePool: S,
+			startSpacerSize: N,
+			endSpacerSize: z,
+			scrollToItem: L,
+			scrollToPosition: F,
+			getScroll: D,
+			findItemIndex: P,
+			getItemOffset: j,
+			getItemSize: U,
+			cacheSnapshot: V,
+			restoreCache: W,
+			updateVisibleItems: Y
 		}), (t, n) => withDirectives((openBlock(), createElementBlock("div", {
 			ref_key: "el",
 			ref: f,
 			class: normalizeClass(["vue-recycle-scroller", {
 				"grid-mode": c.gridItems,
-				"flow-mode": q.value,
-				ready: unref(z),
+				"flow-mode": X.value,
+				ready: unref(M),
 				"page-mode": c.pageMode,
 				[`direction-${c.direction}`]: !0
 			}])
@@ -8742,21 +8744,21 @@ var Mo = /* @__PURE__ */ defineComponent({
 				class: "vue-recycle-scroller__slot"
 			}, [renderSlot(t.$slots, "before")], 512)) : createCommentVNode("", !0),
 			(openBlock(), createBlock(resolveDynamicComponent(c.listTag), {
-				style: normalizeStyle(Q.value),
+				style: normalizeStyle(Z.value),
 				class: normalizeClass(["vue-recycle-scroller__item-wrapper", c.listClass])
 			}, {
 				default: withCtx(() => [
-					q.value && unref(A) > 0 ? (openBlock(), createBlock(resolveDynamicComponent(c.itemTag), {
+					X.value && unref(N) > 0 ? (openBlock(), createBlock(resolveDynamicComponent(c.itemTag), {
 						key: 0,
 						"aria-hidden": "true",
 						class: "vue-recycle-scroller__item-spacer",
-						style: normalizeStyle(X.value)
+						style: normalizeStyle(K.value)
 					}, null, 8, ["style"])) : createCommentVNode("", !0),
-					(openBlock(!0), createElementBlock(Fragment, null, renderList(unref(w), (e) => (openBlock(), createBlock(Oo, mergeProps({
+					(openBlock(!0), createElementBlock(Fragment, null, renderList(unref(x), (e) => (openBlock(), createBlock(Oo, mergeProps({
 						key: e.nr.id,
 						view: e,
 						"item-tag": c.itemTag,
-						style: unref(z) ? unref(U)(e) : null,
+						style: unref(M) ? unref($)(e) : null,
 						class: ["vue-recycle-scroller__item-view", [c.itemClass, { hover: !c.skipHover && y.value === e.nr.key }]]
 					}, toHandlers(c.skipHover ? {} : {
 						mouseenter: () => {
@@ -8776,11 +8778,11 @@ var Mo = /* @__PURE__ */ defineComponent({
 						"style",
 						"class"
 					]))), 128)),
-					q.value && unref(N) > 0 ? (openBlock(), createBlock(resolveDynamicComponent(c.itemTag), {
+					X.value && unref(z) > 0 ? (openBlock(), createBlock(resolveDynamicComponent(c.itemTag), {
 						key: 1,
 						"aria-hidden": "true",
 						class: "vue-recycle-scroller__item-spacer",
-						style: normalizeStyle(K.value)
+						style: normalizeStyle(Q.value)
 					}, null, 8, ["style"])) : createCommentVNode("", !0),
 					0 === c.items.length ? renderSlot(t.$slots, "empty", { key: 2 }) : createCommentVNode("", !0)
 				]),
@@ -8792,8 +8794,8 @@ var Mo = /* @__PURE__ */ defineComponent({
 				ref: h,
 				class: "vue-recycle-scroller__slot"
 			}, [renderSlot(t.$slots, "after")], 512)) : createCommentVNode("", !0),
-			createVNode(Co, { onNotify: unref(Y) }, null, 8, ["onNotify"])
-		], 2)), [[unref(d), unref(G)]]);
+			createVNode(Co, { onNotify: unref(G) }, null, 8, ["onNotify"])
+		], 2)), [[unref(d), unref(q)]]);
 	}
 });
 var Ro = [
@@ -8878,7 +8880,7 @@ var Xo = /*#__PURE__*/ Fn(/* @__PURE__ */ defineComponent({
 	},
 	emits: ["change", "update:modelValue"],
 	setup(s, { emit: c }) {
-		useCssVars((e) => ({ e8dae32e: unref(p) }));
+		useCssVars((e) => ({ v14e0e2ae: unref(p) }));
 		const u = s, d = c, p = /* @__PURE__ */ ref(u.selectedIconBgColor), m = /* @__PURE__ */ ref(""), h = /* @__PURE__ */ ref(!1), g = /* @__PURE__ */ ref([]), y = /* @__PURE__ */ ref(!1), b = /* @__PURE__ */ ref(0), w = computed(() => {
 			if (!u.iconLibrary) return;
 			const e = Array.isArray(u.iconLibrary) ? u.iconLibrary : [u.iconLibrary];
@@ -9055,6 +9057,8 @@ var Xo = /*#__PURE__*/ Fn(/* @__PURE__ */ defineComponent({
 			title: "Remove",
 			onClick: withModifiers((e) => Z(t), ["stop"])
 		}, [...s[2] || (s[2] = [createBaseVNode("svg", {
+			width: "11",
+			height: "11",
 			viewBox: "0 0 24 24",
 			fill: "none",
 			stroke: "currentColor",
@@ -9078,6 +9082,8 @@ var Xo = /*#__PURE__*/ Fn(/* @__PURE__ */ defineComponent({
 			title: "Clear all",
 			onClick: withModifiers(J, ["stop"])
 		}, [...s[3] || (s[3] = [createBaseVNode("svg", {
+			width: "11",
+			height: "11",
 			viewBox: "0 0 24 24",
 			fill: "none",
 			stroke: "currentColor",
@@ -9106,6 +9112,8 @@ var Xo = /*#__PURE__*/ Fn(/* @__PURE__ */ defineComponent({
 			title: "Remove",
 			onClick: s[0] || (s[0] = withModifiers((e) => Z(u.modelValue), ["stop"]))
 		}, [...s[4] || (s[4] = [createBaseVNode("svg", {
+			width: "11",
+			height: "11",
 			viewBox: "0 0 24 24",
 			fill: "none",
 			stroke: "currentColor",
@@ -9123,6 +9131,8 @@ var Xo = /*#__PURE__*/ Fn(/* @__PURE__ */ defineComponent({
 			x2: "18",
 			y2: "18"
 		})], -1)])])) : createCommentVNode("", !0)]))], 64)) : (openBlock(), createElementBlock("span", Uo, toDisplayString(u.placeholder), 1)), createBaseVNode("span", { class: normalizeClass(["v3ip__chevron", { open: unref(h) }]) }, [...s[5] || (s[5] = [createBaseVNode("svg", {
+			width: "12",
+			height: "12",
 			viewBox: "0 0 24 24",
 			fill: "none",
 			stroke: "currentColor",
@@ -9135,6 +9145,8 @@ var Xo = /*#__PURE__*/ Fn(/* @__PURE__ */ defineComponent({
 					withDirectives(createBaseVNode("div", Ho, [
 						s[7] || (s[7] = createBaseVNode("svg", {
 							class: "v3ip__search-icon",
+							width: "12",
+							height: "12",
 							viewBox: "0 0 24 24",
 							fill: "none",
 							stroke: "currentColor",
@@ -9165,6 +9177,8 @@ var Xo = /*#__PURE__*/ Fn(/* @__PURE__ */ defineComponent({
 							title: "Clear search",
 							onClick: M
 						}, [...s[6] || (s[6] = [createBaseVNode("svg", {
+							width: "11",
+							height: "11",
 							viewBox: "0 0 24 24",
 							fill: "none",
 							stroke: "currentColor",
@@ -9221,7 +9235,7 @@ var Xo = /*#__PURE__*/ Fn(/* @__PURE__ */ defineComponent({
 			_: 3
 		})], 34));
 	}
-}), [["__scopeId", "data-v-8c18f1e3"]]);
+}), [["__scopeId", "data-v-a12d6d61"]]);
 var Ko = { install(e, t) {
 	e.component(t?.name || "Vue3IconPicker", Xo);
 } };
@@ -9360,9 +9374,7 @@ var assetsURL = function(dep) {
 	return "/icon-picker/" + dep;
 };
 var seen = {};
-//#endregion
-//#region src/main.ts
-(function preload(baseModule, deps, importerUrl) {
+var __vitePreload = function preload(baseModule, deps, importerUrl) {
 	let promise = Promise.resolve();
 	if (deps && deps.length > 0) {
 		const links = document.getElementsByTagName("link");
@@ -9421,6 +9433,12 @@ var seen = {};
 		}
 		return baseModule().catch(handlePreloadError);
 	});
-})(() => Promise.resolve({}), __vite__mapDeps([0]));
-createApp(App_default).use(Ko).mount("#app");
+};
+//#endregion
+//#region src/main.ts
+async function bootstrap() {
+	await __vitePreload(() => Promise.resolve({}), __vite__mapDeps([0]));
+	createApp(App_default).use(Ko).mount("#app");
+}
+bootstrap();
 //#endregion
