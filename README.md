@@ -2,9 +2,9 @@
 
 A monorepo with icon-picker component libraries for **Vue 3** and **React**, both searching icons live from [Iconify](https://iconify.design) (150+ icon sets, 200,000+ icons). Shared search/selection/sanitization logic lives in `packages/core`, a private workspace package used by both.
 
-<p align="center">
+<!-- <p align="center">
 <img width="600" alt="Demo GIF" src="./demo.gif"/>
-</p>
+</p> -->
 
 ## Packages
 
