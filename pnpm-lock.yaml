@@ -273,8 +273,8 @@ importers:
         specifier: ^3.4.0
         version: 3.5.41(typescript@6.0.3)
       vue-virtual-scroller:
-        specifier: 3.0.4
-        version: 3.0.4(vue@3.5.41(typescript@6.0.3))
+        specifier: 3.0.5
+        version: 3.0.5(vue@3.5.41(typescript@6.0.3))
     devDependencies:
       '@arkn/icon-picker-core':
         specifier: workspace:*
@@ -4406,8 +4406,8 @@ packages:
     peerDependencies:
       typescript: '>=5.0.0'
 
-  vue-virtual-scroller@3.0.4:
-    resolution: {integrity: sha512-3qh3c9VUVysuXynaa4fVZ3ncx3VgD7EPRiQcj+jUVZl5u/TTkD3c27XvSEu3JGJfsJt/vVTVziZ3djiiHtW4cQ==}
+  vue-virtual-scroller@3.0.5:
+    resolution: {integrity: sha512-5YXD+5DiLOGsngaubXmeNKLYsAnokSMKITT8BqlNIGJ7Pggy8udTg00vKVHZDE5ElPXPdxhTXnJBQqpGnzKAgw==}
     peerDependencies:
       vue: ^3.3.0
 
@@ -8891,7 +8891,7 @@ snapshots:
       '@vue/language-core': 3.3.9
       typescript: 6.0.3
 
-  vue-virtual-scroller@3.0.4(vue@3.5.41(typescript@6.0.3)):
+  vue-virtual-scroller@3.0.5(vue@3.5.41(typescript@6.0.3)):
     dependencies:
       vue: 3.5.41(typescript@6.0.3)
 

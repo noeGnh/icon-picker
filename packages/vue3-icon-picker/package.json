@@ -47,7 +47,7 @@
   "dependencies": {
     "@iconify/vue": "^5.0.1",
     "@vueuse/core": "^14.4.0",
-    "vue-virtual-scroller": "3.0.4"
+    "vue-virtual-scroller": "3.0.5"
   },
   "repository": {
     "type": "git",
