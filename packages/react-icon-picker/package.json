@@ -46,7 +46,7 @@
     "@arkn/icon-picker-core": "workspace:*",
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.3.3",
-    "@testing-library/user-event": "^14.6.4",
+    "@testing-library/user-event": "^14.6.6",
     "@types/node": "^26.4.0",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.5",
