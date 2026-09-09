@@ -51,7 +51,7 @@
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.5",
     "@types/react-window": "^2.0.0",
-    "@vitejs/plugin-react": "^6.1.0",
+    "@vitejs/plugin-react": "^6.1.1",
     "auto-changelog": "^2.5.1",
     "react": "^19.2.6",
     "react-dom": "^19.2.6",
