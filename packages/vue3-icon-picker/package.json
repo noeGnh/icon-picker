@@ -39,7 +39,7 @@
   "devDependencies": {
     "@arkn/icon-picker-core": "workspace:*",
     "@types/node": "26.4.0",
-    "auto-changelog": "^2.6.0",
+    "auto-changelog": "^2.6.1",
     "terser": "^5.51.2",
     "vite": "^8.2.2",
     "vitest": "^5.0.0"

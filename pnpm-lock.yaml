@@ -240,8 +240,8 @@ importers:
         specifier: ^6.1.1
         version: 6.1.1(vite@8.2.2(@types/node@26.4.0)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.51.2)(tsx@4.23.1)(yaml@2.9.1))
       auto-changelog:
-        specifier: ^2.5.1
-        version: 2.6.0
+        specifier: ^2.6.1
+        version: 2.6.1
       react:
         specifier: ^19.2.6
         version: 19.2.8
@@ -283,8 +283,8 @@ importers:
         specifier: 26.4.0
         version: 26.4.0
       auto-changelog:
-        specifier: ^2.6.0
-        version: 2.6.0
+        specifier: ^2.6.1
+        version: 2.6.1
       terser:
         specifier: ^5.51.2
         version: 5.51.2
@@ -2156,8 +2156,8 @@ packages:
   async@3.2.6:
     resolution: {integrity: sha512-htCUDlxyyCLMgaM3xXg0C0LW2xqfuQ6p05pCEIsXuyQ+a1koYKTuBMzRNwmybfLgvJDMd0r1LTn4+E0Ti6C2AA==}
 
-  auto-changelog@2.6.0:
-    resolution: {integrity: sha512-jJgUkuWXQ7fPLPXOMQk/XSSmy7KvzpzhjJa6w660dq1KTEez/GW2CPckBra3jMMMMpcwxp84bOslo29qRCewzA==}
+  auto-changelog@2.6.1:
+    resolution: {integrity: sha512-YQJgU1i/qWTk8W/IIE6oUk1DBYr/jiFbksP+LuGRHOzmhviIGhK1otjqSSMUf2aqUdeOW8SUYNSZjiD6Qcun7w==}
     engines: {node: '>= 10'}
     hasBin: true
 
@@ -6288,7 +6288,7 @@ snapshots:
 
   async@3.2.6: {}
 
-  auto-changelog@2.6.0:
+  auto-changelog@2.6.1:
     dependencies:
       commander: 7.2.0
       handlebars: 4.7.9
