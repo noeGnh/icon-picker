@@ -42,7 +42,7 @@
     "auto-changelog": "^2.6.1",
     "terser": "^5.51.2",
     "vite": "^8.2.2",
-    "vitest": "^5.0.0"
+    "vitest": "^5.0.2"
   },
   "dependencies": {
     "@iconify/vue": "^5.0.1",
