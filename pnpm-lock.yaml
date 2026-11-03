@@ -209,8 +209,8 @@ importers:
         specifier: ^6.0.3
         version: 6.0.3(react@19.2.8)
       react-window:
-        specifier: ^2.3.3
-        version: 2.3.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        specifier: ^2.5.2
+        version: 2.5.2(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
     devDependencies:
       '@arkn/icon-picker-core':
         specifier: workspace:*
@@ -235,7 +235,7 @@ importers:
         version: 19.2.5(@types/react@19.2.18)
       '@types/react-window':
         specifier: ^2.0.0
-        version: 2.0.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+        version: 2.0.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
       '@vitejs/plugin-react':
         specifier: ^6.1.1
         version: 6.1.1(vite@8.3.1(@types/node@26.6.3)(esbuild@0.28.1)(jiti@2.6.1)(terser@5.51.2)(tsx@4.23.1)(yaml@2.9.1))
@@ -3759,11 +3759,15 @@ packages:
   react-is@17.0.2:
     resolution: {integrity: sha512-w2GsyukL62IJnlaff/nRegPQR94C/XXamvMWmSHRJ4y7Ts/4ocGRmTHvOs8PSE6pB3dWOrD/nueuU5sduBsQ4w==}
 
-  react-window@2.3.3:
-    resolution: {integrity: sha512-uu/dTwysXp+YL+i5GW/cC/3JrqyE7oE6DYXYVlTeMaDSDgCI+UGo+XCKwXfS8uoFPih8TJYTnikqjAnbDvn75Q==}
+  react-window@2.5.2:
+    resolution: {integrity: sha512-zosAvLp2t3TYE6p2V3mlkZkWIUp2l4y5P4D57IHr2qcNx35VPsF38ukNOC8b609+7fzClxkLz6spzaXltt5Bqg==}
     peerDependencies:
+      '@types/react': ^18.2.6 || ^19.0.0
       react: ^18.0.0 || ^19.0.0
       react-dom: ^18.0.0 || ^19.0.0
+    peerDependenciesMeta:
+      '@types/react':
+        optional: true
 
   react@19.2.8:
     resolution: {integrity: sha512-PWaYA1L/q9u2u7xYQi+Y3L3Yfnie7XyLeaJICV1MGD6LprsBxcAqGjYyr0eY3p+QdsA+x/Irkt4Qif8D63+Sbw==}
@@ -5701,10 +5705,11 @@ snapshots:
     dependencies:
       '@types/react': 19.2.18
 
-  '@types/react-window@2.0.0(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
+  '@types/react-window@2.0.0(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)':
     dependencies:
-      react-window: 2.3.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
+      react-window: 2.5.2(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
     transitivePeerDependencies:
+      - '@types/react'
       - react
       - react-dom
 
@@ -8148,10 +8153,12 @@ snapshots:
 
   react-is@17.0.2: {}
 
-  react-window@2.3.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
+  react-window@2.5.2(@types/react@19.2.18)(react-dom@19.2.8(react@19.2.8))(react@19.2.8):
     dependencies:
       react: 19.2.8
       react-dom: 19.2.8(react@19.2.8)
+    optionalDependencies:
+      '@types/react': 19.2.18
 
   react@19.2.8: {}
 
