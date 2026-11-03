@@ -206,8 +206,8 @@ importers:
   packages/react-icon-picker:
     dependencies:
       '@iconify/react':
-        specifier: ^6.0.2
-        version: 6.0.2(react@19.2.8)
+        specifier: ^6.0.3
+        version: 6.0.3(react@19.2.8)
       react-window:
         specifier: ^2.3.3
         version: 2.3.3(react-dom@19.2.8(react@19.2.8))(react@19.2.8)
@@ -1013,10 +1013,10 @@ packages:
   '@iconify-json/simple-icons@1.2.69':
     resolution: {integrity: sha512-T/rhy5n7pzE0ZOxQVlF68SNPCYYjRBpddjgjrJO5WWVRG8es5BQmvxIE9kKF+t2hhPGvuGQFpXmUyqbOtnxirQ==}
 
-  '@iconify/react@6.0.2':
-    resolution: {integrity: sha512-SMmC2sactfpJD427WJEDN6PMyznTFMhByK9yLW0gOTtnjzzbsi/Ke/XqsumsavFPwNiXs8jSiYeZTmLCLwO+Fg==}
+  '@iconify/react@6.0.3':
+    resolution: {integrity: sha512-2x7gVs+tpUG75aXYo/0c5wPOqrFy75YSGKmuJZyuHyrHMydzXpI/+i9/USIzWXJL9WWc2BCgPVnGY2FhbeiiDQ==}
     peerDependencies:
-      react: '>=16'
+      react: '>=18.0.0'
 
   '@iconify/types@2.0.0':
     resolution: {integrity: sha512-+wluvCrRhXrhyOmRDJ3q8mux9JkKy5SJ/v8ol2tu4FVjyYvtEzkc/3pK15ET6RKg4b4w4BmTk1+gsCUhf21Ykg==}
@@ -5253,7 +5253,7 @@ snapshots:
     dependencies:
       '@iconify/types': 2.0.0
 
-  '@iconify/react@6.0.2(react@19.2.8)':
+  '@iconify/react@6.0.3(react@19.2.8)':
     dependencies:
       '@iconify/types': 2.0.0
       react: 19.2.8
