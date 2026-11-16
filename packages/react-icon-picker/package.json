@@ -40,7 +40,7 @@
   },
   "dependencies": {
     "@iconify/react": "^6.0.3",
-    "react-window": "^2.5.2"
+    "react-window": "^2.5.3"
   },
   "devDependencies": {
     "@arkn/icon-picker-core": "workspace:*",
