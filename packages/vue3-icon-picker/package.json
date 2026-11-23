@@ -45,7 +45,7 @@
     "vitest": "^5.1.0"
   },
   "dependencies": {
-    "@iconify/vue": "^5.0.1",
+    "@iconify/vue": "^5.0.5",
     "@vueuse/core": "^15.0.0",
     "vue-virtual-scroller": "3.0.5"
   },
